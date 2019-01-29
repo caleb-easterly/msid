@@ -1,3 +1,6 @@
+#' Calculate infections
+#'
+#' @importFrom deSolve lsoda
 #' @export
 run_model_infections <- function(pars, vacc, endtime){
     steady_start_modres <- run_to_steady(parms = pars, vaccination = vacc)

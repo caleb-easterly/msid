@@ -2,10 +2,10 @@
 % Please edit documentation in R/imis_functions.R
 \name{group_prevalence_to_gender}
 \alias{group_prevalence_to_gender}
-\title{Takes formatted prev to gender}
+\title{Takes formatted prevalence to gender-specific prevalence}
 \usage{
 group_prevalence_to_gender(fprev)
 }
 \description{
-Takes formatted prev to gender
+Takes formatted prevalence to gender-specific prevalence
 }

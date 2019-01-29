@@ -9,6 +9,7 @@
 #' @param n_run_samp samples from \code{<imis_results>$resample}
 #'
 #' @importFrom IMIS IMIS
+#' @importFrom mvtnorm rmvnorm dmvnorm
 #' @export
 run_comparison <- function(so, contacts, props, n_samp, n_resamp, n_run_samp){
     contacts <- read_contact_matrix(contacts)

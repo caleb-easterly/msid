@@ -2,10 +2,12 @@
 % Please edit documentation in R/imis_functions.R
 \name{prior}
 \alias{prior}
-\title{prior density of parms}
+\title{prior density of parms.
+takes parameters directly from sample.prior()}
 \usage{
 prior(parms)
 }
 \description{
-prior density of parms
+prior density of parms.
+takes parameters directly from sample.prior()
 }

@@ -11,7 +11,8 @@ Imports: dplyr,
     reshape2,
     parallel,
     deSolve,
-    IMIS
+    IMIS,
+    mvtnorm
 LazyData: true
 RoxygenNote: 6.1.1
 ByteCompile: True
