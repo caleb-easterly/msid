@@ -1,0 +1,13 @@
+"r_sex" "r_sexid" "r_sexact" "prop"
+"1" "m" "bi" "high" 0.025
+"2" "m" "bi" "low" 0.05
+"3" "m" "gay" "high" 0.025
+"4" "m" "gay" "low" 0.05
+"5" "m" "het" "high" 0.05
+"6" "m" "het" "low" 0.30
+"7" "w" "bi" "high" 0.025
+"8" "w" "bi" "low" 0.05
+"9" "w" "gay" "high" 0.025
+"10" "w" "gay" "low" 0.05
+"11" "w" "het" "high" 0.05
+"12" "w" "het" "low" 0.30

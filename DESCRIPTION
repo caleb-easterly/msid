@@ -1,0 +1,17 @@
+Package: msid
+Type: Package
+Title: A sexually inclusive model of human papillomavirus
+Version: 0.1.0
+Author: Caleb Easterly
+Maintainer: Caleb Easterly <caleb.easterly@gmail.com>
+Description: Compare results between heterosexual models and multiple-sexual-identity models
+License: GPL-3
+Encoding: UTF-8
+Imports: dplyr,
+    reshape2,
+    parallel,
+    deSolve,
+    IMIS
+LazyData: true
+RoxygenNote: 6.1.1
+ByteCompile: True
