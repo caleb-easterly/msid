@@ -86,6 +86,9 @@ prior <- function(parms){
 
 #' Used to define a likelihood function either for het or so mixing structures
 #'
+#' @param so sex orientation: either "het" or "msid"
+#' @param pop_dist path to the pop dist table
+#' @param contact path to the contact table
 #' @import parallel
 #' @export
 likelihood_generator <- function(so, pop_dist, contact){

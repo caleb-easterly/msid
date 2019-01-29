@@ -36,3 +36,16 @@ test_that("prior density runs", {
     nsamp <- 100
     expect_equal(length(prior(sample.prior(nsamp))), nsamp)
 })
+
+test_that("likelihood generator works", {
+    pop_dist <- read_population_dist("../../../fullSO_SMDM/data/natsal_msid_props.tab")
+    contact_df <- read_contact_matrix("../../../fullSO_SMDM/data/natsal_msid.tab")
+    # is function
+    likelihood <- likelihood_generator('msid', pop_dist, contact_df)
+    expect_is(likelihood, "function")
+
+    # calculates likelihood of parms
+    nsamps <- 2
+    likes <- likelihood(sample.prior(nsamps))
+    expect_equal(length(likes), nsamps)
+})
