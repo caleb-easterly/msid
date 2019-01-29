@@ -15,6 +15,5 @@ read_contact_matrix <- function(path){
     rp_sexact <- "rp_sexact"
     partnerships <- "d_numnew12mo"
 
-
     return(cm)
 }

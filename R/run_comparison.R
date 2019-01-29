@@ -1,3 +1,10 @@
+#' @export
+define_vaccination <- function(parms, m_vacc, w_vacc){
+    make_parm_gender_vecs(mval = m_vacc,
+                          wval = w_vacc,
+                          parms$structural$parm_indices)
+}
+
 #' Run the comparison for SMDM 2018
 #' 50 female vaccination versus 50 male and female vaccination
 #'
@@ -90,3 +97,5 @@ run_comparison <- function(so, contacts, props, n_samp, n_resamp, n_run_samp){
 
     return(list('reds' = all_reds, 'prevs' = all_prevs, 'imis' = calib, 'parms' = calib_parms))
 }
+
+

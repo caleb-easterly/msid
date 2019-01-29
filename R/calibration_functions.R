@@ -128,14 +128,23 @@ run_model_with_btparms <- function(i, btparms, so, pop_dist, contact){
     return(f_mod_prev)
 }
 
-#' Takes formatted prevalence to gender-specific prevalence
-#'
+#' take back-transformed calib results and pass to define_parms
 #' @export
-group_prevalence_to_gender <- function(fprev){
-    fprev %>%
-        group_by(sex) %>%
-        summarise(mean_prev = sum(prev * prop) / sum(prop))
+define_calib_parms <- function(i, btparms, so, pop_dist, contact){
+    ith_set <- btparms[i, ]
+    parms <- define_parameters(betaMM = ith_set["betaMM"],
+                               betaMW = ith_set["betaMF"],
+                               betaWW = ith_set["betaFF"],
+                               inf_clear_rate_M = ith_set["inf_clear_rate_M"],
+                               inf_clear_rate_W = ith_set["inf_clear_rate_F"],
+                               nat_imm_wane_rate_M = ith_set["nat_imm_wane_rate_M"],
+                               nat_imm_wane_rate_W = ith_set["nat_imm_wane_rate_F"],
+                               sexids = so,
+                               population_dist = pop_dist,
+                               contact_df = contact)
+    return(parms)
 }
+
 
 
 #' Back-transform parameters from the

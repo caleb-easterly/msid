@@ -16,3 +16,9 @@ define_index_df <- function(constants) {
     return(list(model_indices = model_indices,
                 parm_indices = parm_indices))
 }
+
+#' todo: write test
+#' @export
+get_parm_index <- function(qsex, qsexid, qsexact, parm_indices){
+    with(parm_indices, parm_uid[sexact == qsexact & sexid == qsexid & sex == qsex])
+}

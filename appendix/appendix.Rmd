@@ -5,29 +5,37 @@ date: "January 29, 2019"
 output: html_document
 ---
 
-# Package
-```{r}
-library(msid)
-```
+# Model
 
-# Parameters
+## Disease states
 
-## Infection Duration
+## Equations
+
+## Structural parameters
+
+# Epidemiology
+
+## Duration of Infection
 
 ```{r echo = FALSE}
+library(msid)
 inf_dur_parms <- estimate_inf_duration()
 par(mfrow = c(1, 2))
 minf_parms <- inf_dur_parms$gammaM
 curve(dgamma(x, shape = minf_parms$alpha, rate = minf_parms$beta),
       from = 0, to = 7, ylab = "Density", xlab = "Duration (Years)", main = "Male Duration of Infection",
       ylim = c(0, 1))
-abline(v = 12.2/12)
+abline(v = 12.2/12, lty = 3)
 grid()
 finf_parms <- inf_dur_parms$gammaF
 curve(dgamma(x, shape = finf_parms$alpha, rate = finf_parms$beta),
       from = 0, to = 7, ylab = "Density", xlab = "Duration (Years)", main = "Female Duration of Infection",
       ylim = c(0, 1))
-abline(v = 17.11/12)
+abline(v = 17.11/12, lty = 3)
 grid()
 ```
+
+# Calibration
+
+# Sensitivity Analysis
 
