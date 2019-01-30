@@ -1,0 +1,321 @@
+---
+title: "Natsal Data Analysis"
+author: "Caleb Easterly"
+date: "September 30, 2018"
+output:
+    html_document:
+        toc: true
+        depth: 3
+        number_sections: true
+        theme: united
+        highlight: tango
+        toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+
+# Natsal Data Analysis
+
+The goal is to estimate the average number of new sex partners per year, stratified by gender, sex behavior/sexual identity, and sexual activity group (high/low risk). I refer to this number as the 'sex partner acquisition rate' (SPAR).
+
+The analysis is a three-step process. The first step is to estimate the sex- and sexID-specific number of new partners per year, which is directly observable from the data. The second step is to "distribute" these partnerships across sexual identities and sexual activities. The third step is to balance the partnerships, so that each pair of groups is reporting the same number of partnerships with each other.
+
+As a toy example, we are able to directly estimate the number of new partnerships that bisexual women had in the past year with women (let's say it's 2). However, the survey does not ask the respondents the sexual activity nor the sexual identity of their partners, so we have to make assumptions (in this case, a "proportionate" assumption), to distribute the partnerships across those categories. Finally, once the partnerships are distributed, there may be an imbalance due to this process between groups - e.g., 100 heterosexual men may report a total of 200 partnerships with bisexual women, while 80 bisexual women may report a total of 160 partnerships with heterosexual men. We can balance this number by ensuring that
+
+$$ 
+p_w n_w = p_m n_m
+$$
+
+Using the traditional method (covered later), the balanced number for heterosexual men is 1.73 and for bisexual women is 2.31. Now,
+
+$$
+80 \times 2.31 = 184.8 \approx 100 \times 1.73
+$$
+
+# Estimation
+
+## Relevant Variables in Natsal
+
+The following variables in the Natsal data set are relevant to our analysis:
+
+* rsex: respondent's sex
+    - 1 is male
+    - 2 is female
+    - *renamed to `r_sex*
+
+* sexid: sexual identity
+    - 1: heterosexual / straight
+    - 2: gay / lesbian
+    - 3: bisexual
+    - 4: other
+    - 9: not answered
+    - *renamed to `r_sexid`*
+
+* everhet: ever had a heterosexual sexual partnership
+    - 1 is yes
+    - 0 is no
+    - 9 is "unclassifiable"
+
+* eversam: Ever had a same-sex partnership
+    - 1 is yes
+    - 2 is no
+    - 9: NA
+    - -1: not answered
+
+* hetnonew: total number of new heterosexual partners in the past year
+    - 0: if het1yr=0 | (het1yr=1 & hetnewp=2)
+    - 1: if het1yr=1 & hetnewp=1
+    - 99: not answered if missing
+    - -1: not applicable if het1yr=-1
+
+* samnonew: no. of new hom. sex partners, last year
+    - 0 if sam1yr=0 | (sam1yr=1 & samnewp=2)
+    - 1 if sam1yr=1 & samnewp=1
+    - copy hnonewp if sam1yr>1 & sam1yr<995
+    - 999: not answered if missing
+    - -1: not applicable if sam1yr=-1
+
+* totnewyr: no. of new het. & hom. sex partners, last year
+    - compute hetnonew + samnonew if hetnonew>=0 & hetnonew<999 & samnonew>=0 & samnonew<999
+    - else hetnonew if samnonew=-1 & hetnonew>=0 & hetnonew<999
+    - else samnonew if hetnonew=-1 & samnonew>=0 & samnonew<999
+    - 999: not answered if hetnonew=999 | samnonew=999
+    - -1: not applicable if hetnonew =-1 | samnonew =-1
+
+
+## Code Variable Names
+Throughout this document, I use the following nomenclature:
+
+| Name | Definition |
+|------|------------------------------------------------------------------|
+|`r_sex` | the gender of the survey respondent |
+|`r_sexid`    | the self-reported sexual identity of the survey respondent |
+|`r_sexact`     | the sexual activity group of the survey respondent, based on their total number of partners |
+| `proportion_in_rgroup` | the proportion of the total population with the designated `r_sex`, `r_sexid`, and/or `r_sexact` (i.e., in the respondent's groups) |
+|`rp_sex`       | the gender of the sex partners (\emph{r}espondents' \emph{p}artners). This is reported by the survey respondents. |
+|`rp_sexid_est`         | the sexual identity of the sex partners of the respondents. This will be estimated using the proportionality assumption |
+|`rp_sexact_est` | the sexual activity group of the sex partners of the respondents. This will be estimated using the proportionality assumption. |
+|`numnew12mo` | the per-person number of new sex partners that the `r` group had with people of gender `rp_sex` |
+|`d_numnew12mo` | The number of partnerships, distributed over sexids and/or sex activity groups. |
+|`npart12mo` | the total number of partnerships that the `r` group had with people of gender `rp_sex`. This is calculated by multiplying `numnew12mo` and `proportion_in_rgroup` |
+
+
+## Analysis
+
+Load NATSAL data in R form:
+```{r}
+load("../old/sfceSO/natsal_R_df.rda")
+```
+
+I focus on a higher-risk age group: 20-year-olds to 35-year-olds. 
+```{r}
+MIN_AGE <- 20
+MAX_AGE <- 35
+
+library(dplyr)
+natsal_hr <- filter(natsal_R_df, dage >= MIN_AGE & dage <= MAX_AGE)
+```
+
+Next, I make new indicator variables, recode some variables to make their values more transparent, and select only relevant variables.
+
+I make two other choices:
+
+1. Exclude anyone who doesn't report a sexual identity of heterosexual, gay, or bisexual. A large percentage (over 99%) report one of these three sexual identities.
+```{r}
+natsal_hr %>%
+    summarize(mean_id = mean(sexid == 1 | sexid == 2 | sexid == 3))
+```
+
+
+2. Remove missing partner data. For `hetnonew`, "99" indicates missingness and "-1" indicates "not applicable". For `samnonew`, "999" indicates missingness and "-1" is not applicable. Again, the missing data is a small proportion of the total (less than 3%).
+```{r}
+natsal_hr %>%
+    summarise(prop_newpt_reported = mean(hetnonew < 99 & samnonew < 995 & hetnonew >= 0 & samnonew >= 0))
+```
+
+
+
+```{r}
+library(reshape2)
+
+recode_sexid <- function(sexid){
+    new_sexid <- rep('unknown', length(sexid))
+    new_sexid[sexid == 1] <- 'het'
+    new_sexid[sexid == 2] <- 'gay'
+    new_sexid[sexid == 3] <- 'bi'
+    return(new_sexid)
+}
+
+all_sex <- natsal_hr %>%
+    # make new indicator for female, eversam and everhet
+    mutate(
+        eversam_ind = (eversam == 1),
+        everhet_ind = (everhet == 1),
+        r_sex = ifelse(rsex == 1, "m", "w"),
+        r_sexid = recode_sexid(sexid)
+    ) %>%
+
+    # remove missing partner data
+    filter(hetnonew < 99 & samnonew < 995 & hetnonew >= 0 & samnonew >= 0) %>%
+
+    # remove unknown sexids
+    filter(r_sexid != 'unknown') %>%
+    select(r_sex, r_sexid, eversam_ind, everhet_ind, hetnonew, samnonew, totnewyr, total_wt)
+```
+
+In all, we end up with `r nrow(all_sex)` observations, which is `r nrow(all_sex)/nrow(natsal_hr)*100`% of the original respondents between `r MIN_AGE` and `r MAX_AGE` years old.
+
+Next, I define the 'sexual activity group', based on whether someone reports having 0-1 (low risk) or 2+ (high risk) new sex partners in the past month. 
+
+```{r}
+def_sex_act_group <- function(totnewyr){
+    lent <- length(totnewyr)
+    # return vector
+    ret <- rep('unknown', lent)  # there won't be any unknowns, because I filtered the data frame
+    ret[totnewyr >= 0 & totnewyr <= 1] <- 'low'
+    ret[totnewyr >= 2] <- 'high'
+    return(ret)
+}
+
+all_sex$r_sexact <- def_sex_act_group(all_sex$totnewyr)
+write.table(all_sex, file="data/natsal_hr.tab")
+```
+
+
+Finally, let's look at the number of new sex partners by sex, sexual activity, and sex behavior group, and compare that to number of new partners by sex, sexual activity, and self-reported sexual identity. I filter out people with unknown sexual activities:
+
+We want to use the survey weights. The mean is easy with `weighted.mean()`, but for the deviations I define a new function, `weighted.sd()` (using a formula from <a href='https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance' target="_blank">Wikipedia</a>, though there probably is a better source).:
+
+```{r}
+weighted.sd <- function(x, w){
+    weighted_mean <- weighted.mean(x, w)
+    sum_wts <- sum(w)
+    wt_var <- t(w) %*% (x - weighted_mean)^2 / (sum_wts - 1)
+    return(sqrt(wt_var))
+}
+```
+
+
+### Partnerships: Sexid
+First, let's look at partnerships by sexid alone. This will be used in the first matrix estimation.
+```{r}
+partnerships_sexid <- all_sex %>%
+    group_by(r_sex, r_sexid) %>%
+    summarize(m = weighted.mean(ifelse(r_sex == "w", hetnonew, samnonew), w = total_wt),
+              w = weighted.mean(ifelse(r_sex == "m", hetnonew, samnonew), w = total_wt),
+              proportion_in_rgroup = sum(total_wt)/sum(all_sex$total_wt)) %>%
+    melt(id.vars = c("r_sex", "r_sexid", "proportion_in_rgroup"),
+         value.name = "numnew12mo",
+         variable.name = "rp_sex")
+
+library(ggplot2)
+ggplot(partnerships_sexid) +
+    geom_bar(aes(x = r_sex, y = numnew12mo, fill=rp_sex), stat = "identity", position="dodge") +
+    facet_grid(.~r_sexid) +
+    theme_bw(base_size = 14) +
+    labs(title = "Annual number of new partnerships by sexid")
+```
+
+
+### Partnerships: Sexid & Sexual Activity 
+
+Now, let's look at partnerships by sexid and sexual activity group together, for the second estimation.
+
+```{r}
+natsal_partnerships <- all_sex %>%
+    group_by(r_sex, r_sexid, r_sexact) %>%
+    summarize(m = weighted.mean(ifelse(r_sex == "w", hetnonew, samnonew), w = total_wt),
+              w = weighted.mean(ifelse(r_sex == "m", hetnonew, samnonew), w = total_wt),
+              proportion_in_rgroup = sum(total_wt)/sum(all_sex$total_wt)) %>%
+    melt(id.vars = c("r_sex", "r_sexid", "r_sexact", "proportion_in_rgroup"),
+         value.name = "numnew12mo",
+         variable.name = "rp_sex")
+ggplot(natsal_partnerships) +
+    geom_bar(aes(x = r_sex, y = numnew12mo, fill=rp_sex), stat = "identity", position="dodge") +
+    facet_grid(r_sexact~r_sexid, scales="free") +
+    theme_bw(base_size=14) +
+    labs(title = "Annual number of new partnerships by sexual activity group and sexid")
+```
+
+### Population Distributions
+
+#### By Sexual Identity
+```{r}
+library(reshape2)
+props <- all_sex %>%
+    mutate(non_het = (r_sexid == 'het')) %>%
+    group_by(non_het) %>%
+    summarise(by_identity = sum(total_wt)/sum(all_sex$total_wt),
+              by_partnerships = sum(total_wt * totnewyr)/sum(all_sex$total_wt * all_sex$totnewyr)) %>%
+    melt(id.vars = "non_het", value.name = "proportion", variable.name = "Proportion_Type")
+
+library(knitr)
+library(kableExtra)
+props %>%
+    kable() %>%
+    kable_styling()
+
+
+ggplot(props) +
+    geom_bar(aes(x = non_het, y = proportion, fill=Proportion_Type),
+             stat = "identity", position="dodge") +
+    theme_bw() +
+    labs(x = "Respondent's Sexual Identity",
+         y = "Proportion")
+ggsave('plots/proportions.png', height=5, width = 5, units = "in", dpi = 500)
+```
+
+### By Gender, Sexual Identity, and Sexual Activity
+```{r}
+props_gsa <- all_sex %>%
+    group_by(r_sex, r_sexid, r_sexact) %>%
+    summarise(proportion = sum(total_wt)/sum(all_sex$total_wt))
+## write this out for later
+# write.table(props_gsa, file="data/proportions_by_gsa.tab",
+#             sep="\t", row.names=FALSE, quote=FALSE)
+```
+
+### By Same-Sex and Opposite-Sex
+```{r}
+props_samhet <- all_sex %>%
+    summarise(proportion = sum(total_wt * samnonew)/sum(total_wt * totnewyr))
+props_samhet
+```
+
+### Ever same-sex
+```{r}
+props_eversam <- all_sex %>%
+    summarise(proportion = sum(total_wt * eversam_ind)/sum(all_sex$total_wt))
+props_eversam
+```
+
+Make data frame
+```{r}
+props_all <- all_sex %>%
+    mutate(prop_ever_het = sum(total_wt * eversam_ind)/sum(all_sex$total_wt)) %>%
+    mutate(het_id = (r_sexid == 'het')) %>%
+    group_by(het_id, prop_ever_het) %>%
+    summarise(by_identity = sum(total_wt)/sum(all_sex$total_wt),
+              by_partnerships = sum(total_wt * totnewyr)/sum(all_sex$total_wt * all_sex$totnewyr)) %>%
+    filter(het_id == FALSE) %>%
+    melt(id.vars = c("het_id")) %>%
+    mutate(value = value * 100)
+
+ggplot(props_all) +
+    geom_bar(aes(x = reorder(variable, -value), y = value, fill = variable), stat = "identity") +
+    labs( x= NULL,
+         y = NULL) +
+    theme_bw(base_size = 16) +
+    scale_fill_discrete(guide = FALSE) +
+    scale_x_discrete(labels = c("Ever\nsame-sex",
+                                "Partners of same-sex",
+                                "Reporting non-\nheterosexual identity")) +
+    geom_text(aes(x = reorder(variable, -value), y = value, label = paste0(format(value, digits = 2), "%")),
+              nudge_y = 1) +
+    scale_y_continuous(breaks = seq(0, 20, by = 5), limits = c(0, 15)) +
+    coord_flip()
+ggsave("plots/different_proportions.png", height = 4, width = 6, units = "in", dpi = 500)
+```

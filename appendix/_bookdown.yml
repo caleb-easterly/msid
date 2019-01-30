@@ -1,0 +1,10 @@
+---
+title: "Appendix"
+author: "Caleb Easterly"
+date: "`r Sys.Date()`"
+site: "bookdown::bookdown_site"
+output:
+  bookdown::gitbook: default
+documentclass: book
+rmd_files: ["index.Rmd", "01-model_description.Rmd"]
+---

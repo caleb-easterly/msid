@@ -1,0 +1,168 @@
+# MSID
+
+## Estimate
+
+```{r}
+library(reshape2)
+gsisa_rep <- all_sex %>%
+    group_by(r_sex, r_sexid, r_sexact) %>%
+    summarize(het = weighted.mean(hetnonew, w = total_wt),
+              sam = weighted.mean(samnonew, w = total_wt)) %>%
+    mutate(m = ifelse(r_sex == "m", sam, het),
+           w = ifelse(r_sex == "w", sam, het)) %>%
+    select(r_sex, r_sexid, r_sexact, m, w) %>%
+    melt(id.vars = c('r_sex', 'r_sexid', 'r_sexact'),
+         variable.name = "rp_sex",
+         value.name = "partners") %>%
+    # add proportions
+    rowwise() %>%
+    mutate(prop = get_proportion(all_sex, q_sex = r_sex,
+                                q_sexid = r_sexid, q_sexact = r_sexact),
+           n_partners = prop * partners) %>%
+    ungroup() %>%
+  arrange(r_sex, r_sexid, r_sexact)
+format_table(gsisa_rep)
+```
+
+
+```{r}
+gsisa_offered <- gsisa_rep %>%
+  group_by(rp_sex, r_sex) %>%
+  # define prop_to_r as the the proportion of all partners offered to r that come from rp
+  mutate(prop_to_r = n_partners / sum(n_partners)) %>%
+  select(r_sex,
+         rp_sex,
+         rp_sexid = r_sexid,
+         rp_sexact = r_sexact,
+         prop_to_r) %>%
+  arrange(r_sex, rp_sex, rp_sexid, rp_sexact)
+format_table(gsisa_offered)
+```
+
+Note that most of the partners that are 'offered' from men to men from men come from high sexual-activity gay men, and the proportion of all partnerships offered from men to men sums to 1.
+
+```{r}
+fmtm <- gsisa_offered %>%
+  filter(r_sex == "m" & rp_sex == "m") %>%
+  mutate(rp_demo = paste(rp_sex, rp_sexid, rp_sexact, sep="_"))
+ggplot(fmtm) +
+  geom_bar(aes(x = rp_demo, y = prop_to_r), stat = "identity") +
+  ylab("Proportion of partnerships offered to men from men") +
+  theme_bw()
+```
+
+Make partner distribution
+
+## Distribute
+
+```{r}
+make_partner_dist_gsisa <- function(survey_df, dist_df){
+    joined <- 
+    return(joined)
+}
+
+gsisa_partner_dist <- left_join(gsisa_rep, gsisa_offered, by = c("r_sex", "rp_sex")) %>%
+        mutate(d_partners = partners * prop_to_r,
+               n_d_partners = d_partners * prop) %>%
+        mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep="_"),
+               rp_demo = paste(rp_sex, rp_sexid, rp_sexact, sep="_")) %>%
+  select(r_demo, rp_demo, prop, d_partners)
+
+format_table(head(gsisa_partner_dist, n = 10))
+```
+
+## Balance
+
+```{r}
+balance_gsisa <- function(partner_dist_gsisa, theta){
+    bidi <- partner_dist_gsisa %>%
+        inner_join(partner_dist_gsisa,
+                   by = c("r_demo" = "rp_demo",
+                          "rp_demo" = "r_demo"),
+                   suffix = c('.r', '.rp'))
+    
+    b_bidi <- bidi %>%
+        mutate(np_r = d_partners.r * prop.r,
+               np_rp = d_partners.rp * prop.rp) %>%
+        mutate(imbalance = np_r / np_rp,
+               corrected_r = d_partners.r / imbalance^(1 - theta),
+               corrected_rp = d_partners.rp * imbalance^theta,
+               cnr = corrected_r * prop.r,
+               cnrp = corrected_rp * prop.rp) %>%
+        select(r_demo,
+               prop.r,
+               rp_demo,
+               prop.rp,
+               d_partners.r,
+               corrected_r,
+               d_partners.rp,
+               corrected_rp,
+               cnr,
+               cnrp)
+    return(b_bidi)
+}
+
+b_gsisa_partner_dist <- balance_gsisa(gsisa_partner_dist, 0.5)
+
+format_table(head(b_gsisa_partner_dist, n = 10))
+
+library(stringr)
+ggplot(rbind(b_gsisa_partner_dist)) +
+    geom_tile(aes(x = r_demo, y = rp_demo, fill=corrected_r), color="black", size = 0.2) +
+    scale_fill_gradient2(name="Annual Number\nof New Partnerships",
+                         low = "white",
+                         mid = "blue2",
+                         high = "black",
+                         midpoint = 3,
+                         na.value = "white") +
+    labs(x = "Group of Partner 1",
+         y = "Group of Partner 2") +
+    theme_minimal(base_size = 14) + coord_fixed() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# ggsave("plots/gsisa_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
+```
+
+Check that this worked:
+
+```{r}
+all(with(b_gsisa_partner_dist, abs(cnr - cnrp) < .Machine$double.eps), na.rm = TRUE)
+```
+
+### Compare
+```{r}
+sexid_nos_by_grp <- b_gsisa_partner_dist %>%
+  mutate(rp_sex = str_split(rp_demo, "_", simplify = TRUE)[, 1]) %>%
+  group_by(r_demo, rp_sex) %>%
+  summarize(bal_p_pc = sum(corrected_r, na.rm = TRUE))
+
+sexid_nos_compare <- gsisa_rep %>%
+  mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_")) %>%
+  select(r_demo, rp_sex, orig_p_pc = partners) %>%
+  left_join(sexid_nos_by_grp, by = c("r_demo", "rp_sex"))
+format_table(sexid_nos_compare)
+```
+
+# Appendix
+
+## Code Variable Names
+Throughout this document, we use the following nomenclature:
+
+| Name         | Definition |
+|--------------|------------------------------------------------------------------|
+|`r_sex` | the sex of the survey respondent |
+|`r_sexid`    | the self-reported sexual identity of the survey respondent |
+|`r_sexact`     | the sexual activity group of the survey respondent, based on their total number of partners |
+| `prop` | the proportion of the total population with the designated sex, sexid, and/or sexact. This may be suffixed by `r_rp` or `rp_r` |
+|`rp_sex`       | the sex of the sex partners (respondents' partners). This is reported by the survey respondents. |
+|`rp_sexid`         | the sexual identity of the sex partners of the respondents. This will be estimated using the proportionality assumption |
+|`rp_sexact` | the sexual activity group of the sex partners of the respondents. This will be estimated using the proportionality assumption. |
+|`partners` | the per-person number of new sex partners that the `r` group reported with people of sex `rp_sex` |
+|`n_partners` | the total number of new sex partners that the `r` group reported with people of sex `rp_sex` |
+|`partners.r_rp`| After combining respondents and hypothetical respondents' partners, the per-person number of partners that `r` has with `rp` |
+|`partners.rp_r`| The hypothetical per-person number of partnerships that `rp` has with `r` |
+|`prop_to_r` | The proportion of all partnerships offered to `r` that come from `rp` |
+|`d_partners`, `d_partners.r_rp`, `d_partners.rp_r`| The per-person number of partnerships, distributed over sexids and/or sex activity groups. Either as reported, calculated from `r` to `rp`, or calculated from `rp` to `r`, respectively. |
+|`n_partners*`, `n_d_partners*` | The total number of partnerships, i.e., the product of the partnership measure and the proportion in that group |
+|`corrected_r`, `corrected_rp` | Per-person number of partnerships corrected for balancing, from the perspective of `r` and `rp` groups, respectively.
+|`cnr`, `cnrp` | The total number of partnerships from `r` to `rp` and vice versa. Used to check that the balancing worked |
+

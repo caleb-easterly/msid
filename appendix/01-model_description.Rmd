@@ -1,11 +1,4 @@
----
-title: "Appendix"
-author: "Caleb Easterly"
-date: "January 29, 2019"
-output: html_document
----
-
-# Model
+# Model Description
 
 ## Disease states
 

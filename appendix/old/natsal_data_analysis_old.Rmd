@@ -1,0 +1,763 @@
+---
+title: "Mixing Matrix Estimation"
+author: "Caleb Easterly"
+date: "September 30, 2018"
+output:
+    html_document:
+        toc: true
+        depth: 3
+        number_sections: true
+        theme: united
+        highlight: tango
+        toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+
+## The Problem
+
+The goal is to estimate the number of annual partnerships between each 'type' of person in the model. In this model, we'll have 2 genders (men and women), three sexual orientations (heterosexual, gay, and bisexual), and two sexual activity groups (high and low). That gives a total of 12 demographic groups.
+
+In the Natsal data, we know the gender, self-reported sexual orientation, and sexual activity level of the respondents, as well as the gender of the respondents' partners. The main problem is that the respondents they don't report (and/or don't know) the sexual orientation or sexual activity of their partner. So, we have the total number of partners that each group has with each gender, but we'll have to distribute these partnerships among sexual orientations and sexual activities.
+
+Because there doesn't seem to be much information on how people mix regarding sexual orientation or sexual activity, I make the proportionate assumption, which amounts to assuming that people have no preference for sexual orientation or sexual activity - they simply choose among what is available to them.
+
+Using example data, I'll build up to the full stratification (two sexes, three sexual identities, and two sexual activities) in this order:
+
+1. Heterosexual population, no stratification
+2. Heterosexual population, sexual activity stratification
+3. Het, gay/lesbian, bi population, no stratification
+4. Het, gay/lesbian, bi population, sexual activity stratification
+
+There are two steps in each analysis:
+
+1. Distribute partnerships using proportionality
+2. Balance partnerships
+
+## Heterosexual population - no stratification
+
+In this case, there is no distributing or balancing to be done. Each person reports the number of partners they have with the opposite sex. 
+
+By balancing, I mean that each subgroup $g$ has the same total number of partnerships with subgroup that subgroup $g'$ has with $g$. By 'number', I mean the per-person number of partnerships reported by group $g$ times the number of people in group $g$. To generalize this to a population of any size, we can use the proportion of the population in group $g$.
+
+As an example, if $2/3$ of the population is in group $A$ and $1/3$ is in group $B$, and $b \in B$ reports 1 partners with $A$ and each $a \in A$ reports 1.5 partner with $B$, the partnerships are unbalanced - $1.5\times \frac{2}{3} \neq 1 \times \frac{1}{3}$. 
+
+Using Garnett's method (below), we take the ratio of the total number of partnerships, with group $A$ in the numerator: $\frac{1}{1/3} = 3$. Then, group $A$'s per-person number of partnerships is divided by $\sqrt{3}$ and group $B$'s is multiplied by $\sqrt{3}$ - now, the total number of partnerships are balanced:
+
+$$
+\frac{\frac{2}{3} \times 1.5}{\sqrt{3}} = \frac{\sqrt{3}}{3} = \frac{1}{3} \times 1 \times \sqrt{3}
+$$
+
+In more formal notation, let the proportion of the population in groups $g$ and $g'$ be $N_g$ and $N_{g'}$, respectively, and let the number of partnerships reported from $g$ to $g'$ be $\beta_{gg'}$, and from $g'$ to $g$ be $\beta_{g'g}$.  Using the notation from before, we need the following equality to holdl:
+
+$$
+N_{g} \beta_{gg'} = N_{g'} \beta_{g'g} 
+$$
+
+The traditional balancing method (Garnett 1994) is to take the ratio of these two quantities, which we can call the "imbalance", $B$:
+
+$$
+B = \frac{N_{g}\beta_{gg'}}{N_{g'}\beta_{g'g}} 
+$$
+
+Note that the $g \to g'$ partnerships are in the numerator. Then, using a weight $\theta$, the balanced number of partnerships for $g$, $\hat{\beta}_{gg'}$, is
+
+$$
+\hat{\beta}_{gg'} =  \frac{\beta_{gg'}}{B^{1 - \theta}}
+$$
+and the balanced number for $g'$ is 
+$$
+\hat{\beta}_{g'g} = \beta_{g'g} B^\theta
+$$
+
+Note that we have no guarantee that the two $\hat{\beta}$ numbers are the same - but we are guaranteed that
+$$
+N_g \hat{\beta}_{gg'} = N_{g'} \hat{\beta}_{g'g}
+$$
+
+Let's see how this works out with the non-stratified heterosexual population. Throughout this document, I use the following variable names:
+
+
+| Name | Definition |
+|------|------------------------------------------------------------------|
+|`r_sex` | the gender of the survey respondent |
+|`r_sexid`    | the self-reported sexual identity of the survey respondent |
+|`r_sexact`     | the sexual activity group of the survey respondent, based on their total number of partners |
+| `prop` | the proportion of the total population with the designated gender, sexid, and/or sexact. This may be suffixed by `r_rp` or `rp_r` |
+|`rp_sex`       | the gender of the sex partners (\emph{r}espondents' \emph{p}artners). This is reported by the survey respondents. |
+|`rp_sexid`         | the sexual identity of the sex partners of the respondents. This will be estimated using the proportionality assumption |
+|`rp_sexact` | the sexual activity group of the sex partners of the respondents. This will be estimated using the proportionality assumption. |
+|`partners` | the per-person number of new sex partners that the `r` group reported with people of gender `rp_sex` |
+|`partners.r_rp`| After combining respondents and hypothetical respondents' partners, the per-person number of partners that `r` has with `rp` |
+|`partners.rp_r`| The hypothetical per-person number of partnerships that `rp` has with `r` |
+|`prop_to_r` | The proportion of all partnerships offered to `r` that come from `rp` |
+|`d_partners`, `d_partners.r_rp`, `d_partners.rp_r`| The per-person number of partnerships, distributed over sexids and/or sex activity groups. Either as reported, calculated from `r` to `rp`, or calculated from `rp` to `r`, respectively. |
+|`n_partners*`, `n_d_partners*` | The total number of partnerships, i.e., the product of the partnership measure and the proportion in that group |
+|`corrected_r`, `corrected_rp` | Per-person number of partnerships corrected for balancing, from the perspective of `r` and `rp` groups, respectively.
+|`cnr`, `cnrp` | The total number of partnerships from `r` to `rp` and vice versa. Used to check that the balancing worked |
+
+
+First, I read in the Natsal data and define a function to calculate the proportions in each population:
+
+```{r}
+natsal <- read.table("data/natsal_hr.tab",
+                     stringsAsFactors = FALSE)
+
+
+get_proportion <- function(natsal,
+                           q_sex = c("m", "w"),
+                           q_sexid = c("het", "gay", "bi"),
+                           q_sexact = c("high", "low"),
+                           denom_sex = c("m", "w"),
+                           denom_sexid = c("het", "gay", "bi"),
+                           denom_sexact = c("high", "low")){
+    denom <- sum(natsal$total_wt[natsal$r_sex %in% denom_sex &
+                                     natsal$r_sexid %in% denom_sexid &
+                                     natsal$r_sexact %in% denom_sexact])
+    qpop <- sum(natsal[natsal$r_sex %in% q_sex &
+                          natsal$r_sexid %in% q_sexid &
+                          natsal$r_sexact %in% q_sexact, "total_wt"])
+    qpop / denom
+}
+```
+
+Next, define the partner table:
+
+```{r}
+library(dplyr)
+het_rep <- natsal %>%
+    filter(r_sexid == "het") %>%
+    
+    # we want to get average number of heterosexual partners by gender
+    group_by(r_sex) %>%
+    summarise(partners = weighted.mean(hetnonew, w = total_wt)) %>%
+    
+    # define partner gender - this is easy because it's a heterosexual population
+    mutate(rp_sex = ifelse(r_sex == "m", 'w', 'm'))
+```
+
+
+Here, I join the reported df with itself, to get the hypothetical reported partner information in the df.
+```{r}
+het_rep_w_part <- het_rep %>%
+    select(r_sex, rp_sex, partners) %>%
+    inner_join(het_rep,
+               by = c("rp_sex" = "r_sex",
+                      "r_sex" = "rp_sex"),
+               suffix = c(".rp_r", ".r_rp"))
+
+library(knitr)
+library(kableExtra)
+het_rep_w_part %>%
+    kable() %>%
+    kable_styling()
+```
+
+The balancing process is as follows:
+
+1. Calculate the net number of partnerships for the groups with `r_sex`, and `rp_sex` using their population proportion. These are `n_partners.r_rp` and `n_partners.rp_r`, respectively. 
+2. Divide `n_partners.r_rp * prop.r` by `n_partners.rp_r * prop.r` (this is the same as $N_g \beta_{gg'}/ (N_{g'} \beta_{g'g})$)
+3. Estimate the respondent's balanced partnerships by calculting `n_partners.r_rp / imbalance^(1 - theta)`
+4. Estimate the respondent's partner's balanced partnerships by calculating `n_partners.rp_r * imbalance^theta`
+
+```{r}
+theta <- 0.5
+
+b_het_nostrat <- het_rep_w_part %>%
+    # group by rows, for the proportion function (which doesn't take vectors)
+    rowwise() %>%
+    # calculate number of partners going each direction
+    mutate(prop.r = get_proportion(natsal, q_sex = r_sex, q_sexid = "het", denom_sexid = "het"),
+           n_partners.r_rp = partners.r_rp * prop.r,
+           prop.rp = get_proportion(natsal, q_sex = rp_sex, q_sexid = "het", denom_sexid = "het"),
+           n_partners.rp_r = partners.rp_r * prop.rp) %>%
+    mutate(imbalance = n_partners.r_rp / n_partners.rp_r,
+           corrected_r = partners.r_rp / imbalance^(1 - theta),
+           corrected_rp = partners.rp_r * imbalance^theta,
+           cnr = corrected_r * prop.r,
+           cnrp = corrected_rp * prop.rp) %>%
+    select(r_sex,
+           rp_sex,
+           corrected_r, 
+           corrected_rp,
+           cnr,
+           cnrp)
+
+b_het_nostrat %>%
+    kable() %>%
+    kable_styling()
+```
+
+Let's check that this worked:
+
+```{r}
+abs(b_het_nostrat$cnr - b_het_nostrat$cnrp) < .Machine$double.eps
+```
+
+## Heterosexual population with sexual activity stratification
+
+Now that we have a sexual activity stratification, we have to distribute the partnerships. Let's start by calculating numbers of partnerships from the respondents' point of view.
+
+```{r}
+het_sexact_rep <- natsal %>%
+    filter(r_sexid == "het") %>%
+    group_by(r_sex, r_sexact, r_sexid) %>%
+    summarise(partners = weighted.mean(hetnonew, w = total_wt)) %>%
+    mutate(rp_sex = ifelse(r_sex == "m", 'w', 'm')) %>%
+    rowwise() %>%
+    mutate(prop = get_proportion(natsal,
+                                 q_sex = r_sex,
+                                 q_sexact = r_sexact,
+                                 q_sexid = "het",
+                                 denom_sexid = "het"),
+           n_partners = prop * partners) %>%
+    ungroup()
+het_sexact_rep %>%
+    kable() %>%
+    kable_styling()
+```
+
+Next, let's distribute the partnerships across activity levels.
+
+### Distributing partnerships via proportionality
+
+Since the respondent's don't know their partners' activity levels, we can make the proportionality assumption and then estimate the proportion of partnerships from each activity level.
+
+This amounts to
+
+$$
+\text{Pr}(G_{rp} = g' | G_r = g) = \frac{N_{g'} \beta_{g'g}}{\sum_\gamma N_{\gamma} \beta_{\gamma g}}
+$$
+
+where $G_c$ and $G_p$ are the gender of the 'chooser' and 'partner' respectively, $S_c$ and $S_p$ are the the sexual orientation of the 'chooser' and 'partner', $N_{ks}$ is the proportion of people with gender $k$ who have sexual orientation $s$, $\beta_{ksk'}$ is the number of partnerships that people of gender $k$ with sexual orientation $s$ reported with gender $k'$. 
+
+We can do this using dplyr and piping. Basically, for each combination of `r_sex` and `rp_sex`, I take the total number of partnerships 'offered' by each sexual orientation, and divide it by the total number of partnerships offered by that gender. Then, I define `rp_sexid = r_sexid`, so the proportion `prop_of_offered` represents the proportion of partnerships from `rp_sex` offered to `r_sex` that come from people who identify as `rp_sexid`.
+
+
+```{r}
+make_offered_dists_het_sexact <- function(df) {
+    df %>%
+        group_by(rp_sex, r_sex) %>%
+        mutate(prop_to_r = n_partners / sum(n_partners)) %>%
+        select(r_sex,
+               rp_sex,
+               rp_sexact = r_sexact,
+               rp_sexid = r_sexid,
+               prop_to_r) %>%
+        ungroup()
+}
+het_sexact_offered_dist <- make_offered_dists_het_sexact(het_sexact_rep)
+het_sexact_offered_dist %>%
+    head() %>%
+    kable() %>%
+    kable_styling()
+```
+
+Now, we distribute the partnerships across the groups
+
+```{r}
+make_partner_dist_sexact <- function(survey_df, dist_df){
+    # join, to get prop and tot_part
+    joined <- left_join(dist_df,
+                        survey_df, by = c("r_sex", "rp_sex")) %>%
+        mutate(d_partners = partners * prop_to_r) %>%
+        mutate(r_demo = paste(r_sex, r_sexact, sep="_"),
+                   rp_demo = paste(rp_sex, rp_sexact, sep="_")) %>%
+        select(r_sex, r_sexact, r_sexid, rp_sex, rp_sexact, rp_sexid, r_demo, rp_demo, d_partners, prop)
+    return(joined)
+}
+
+partner_dist_het_sexact <- make_partner_dist_sexact(het_sexact_rep, het_sexact_offered_dist)
+
+partner_dist_het_sexact %>%
+    head() %>%
+    kable() %>%
+    kable_styling()
+```
+
+Finally, we have to balance these partnerships.
+
+
+```{r}
+natsal_het_bidi <- partner_dist_het_sexact %>%
+    # do a self-join t calculate partners from perspective of rp
+    inner_join(partner_dist_het_sexact,
+               by = c("r_sex" = "rp_sex",
+                      "r_sexact" = "rp_sexact",
+                      "r_sexid" = "rp_sexid",
+                      "rp_sex" = "r_sex",
+                      "rp_sexact" = "r_sexact",
+                      "rp_sexid" = "r_sexid",
+                      "r_demo" = "rp_demo",
+                      "rp_demo" = "r_demo"),
+               suffix = c('.r', '.rp'))
+
+theta <- 0.5
+b_natsal_het_bidi <- natsal_het_bidi %>%
+    mutate(np_r = d_partners.r * prop.r,
+           np_rp = d_partners.rp * prop.rp) %>%
+    mutate(imbalance = np_r / np_rp,
+           corrected_r = d_partners.r / imbalance^(1 - theta),
+           corrected_rp = d_partners.rp * imbalance^theta,
+           cnr = corrected_r * prop.r,
+           cnrp = corrected_rp * prop.rp) %>%
+    select(r_demo,
+           r_sex,
+           r_sexact,
+           r_sexid,
+           rp_demo,
+           rp_sex,
+           rp_sexact,
+           rp_sexid,
+           prop.r,
+           corrected_r, 
+           corrected_rp,
+           cnr,
+           cnrp)
+
+b_natsal_het_bidi %>%
+    kable() %>%
+    kable_styling()
+```
+
+Balanced! Let's check that this worked.
+```{r}
+all(with(b_natsal_het_bidi, abs(cnr - cnrp) < .Machine$double.eps))
+```
+
+It works.
+
+```{r}
+# for plotting, I want to emphasize the zeros between same-sex
+na_demos <- mutate(b_natsal_het_bidi,
+                   r_demo = r_demo,
+                   rp_demo = rev(rp_demo),
+                   corrected_r = NA)
+
+# plot with nas
+library(ggplot2)
+ggplot(rbind(b_natsal_het_bidi, na_demos)) +
+    geom_tile(aes(x = r_demo, y = rp_demo, fill=corrected_r), color="black", size = 0.2) +
+    scale_fill_gradient2(name="Annual Number\nof New Partnerships",
+                         low = "white",
+                         mid = "blue2",
+                         high = "black",
+                         midpoint = 1.5,
+                         na.value = "white",
+                         breaks = seq(0, 6)) +
+    labs(x = "Group of Partner 1",
+         y = "Group of Partner 2") +
+    theme_minimal(base_size = 14) + coord_fixed() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("plots/natsal_het_balanced.png", width = 7, height = 6, units = "in", dpi = 500)
+```
+
+Write out
+
+```{r}
+write.table(b_natsal_het_bidi,
+            file = "data/natsal_het_balanced.tab")
+
+natsal_het_sexact_prop <- b_natsal_het_bidi %>%
+    group_by(r_sex, r_sexact, r_sexid) %>%
+    summarise(prop = mean(prop.r))
+write.table(natsal_het_sexact_prop,
+            file = "data/natsal_het_props.tab")
+```
+
+
+
+## Full population - average behavior (CHANGE THIS TO SEXACT STRAT)
+
+```{r}
+library(dplyr)
+library(reshape2)
+avg_rep <- natsal %>%
+    group_by(r_sex, r_sexact) %>%
+    summarize(het = weighted.mean(hetnonew, w = total_wt),
+              sam = weighted.mean(samnonew, w = total_wt)) %>%
+    mutate(m = ifelse(r_sex == "m", sam, het),
+           w = ifelse(r_sex == "w", sam, het)) %>%
+    select(r_sex, r_sexact, m, w) %>%
+    melt(id.vars = c('r_sex', 'r_sexact'),
+         variable.name = "rp_sex",
+         value.name = "partners") %>%
+    # add proportions
+    rowwise() %>%
+    mutate(prop = get_proportion(natsal, q_sex = r_sex, q_sexact = r_sexact),
+           n_partners = prop * partners) %>%
+    ungroup()
+avg_rep %>%
+    kable() %>%
+    kable_styling()
+```
+
+Make offered dists:
+```{r}
+make_offered_dists_sexact <- function(df) {
+    df %>%
+        group_by(rp_sex, r_sex) %>%
+        mutate(prop_to_r = n_partners / sum(n_partners)) %>%
+        select(r_sex,
+               rp_sex,
+               rp_sexact = r_sexact,
+               prop_to_r) %>%
+        ungroup()
+}
+het_sexact_offered_dist <- make_offered_dists_sexact(avg_rep)
+het_sexact_offered_dist %>%
+    head() %>%
+    kable() %>%
+    kable_styling()
+```
+
+Make partner df:
+
+```{r}
+make_partner_dist_avg_sexact <- function(survey_df, dist_df){
+    # join, to get prop and tot_part
+    joined <- left_join(dist_df,
+                        survey_df, by = c("r_sex", "rp_sex")) %>%
+        mutate(d_partners = partners * prop_to_r) %>%
+        mutate(r_demo = paste(r_sex, r_sexact, sep="_"),
+                   rp_demo = paste(rp_sex, rp_sexact, sep="_")) %>%
+        select(r_sex, r_sexact, rp_sex, rp_sexact, r_demo, rp_demo, d_partners, prop)
+    return(joined)
+}
+
+b_d_avg <- make_partner_dist_avg_sexact(avg_rep, het_sexact_offered_dist)
+```
+
+Here, I join the reported df with itself, to get the hypothetical reported partner information in the df.
+
+```{r}
+avg_rep_bidi <- b_d_avg %>%
+    select(r_sex, r_sexact, rp_sex, rp_sexact, d_partners) %>%
+    inner_join(b_d_avg,
+               by = c("rp_sex" = "r_sex",
+                      "r_sex" = "rp_sex",
+                      "rp_sexact" = "r_sexact",
+                      "r_sexact" = "rp_sexact"),
+               suffix = c(".rp_r", ".r_rp"))
+
+library(knitr)
+library(kableExtra)
+avg_rep_bidi %>%
+    kable() %>%
+    kable_styling()
+```
+
+Balancing
+
+```{r}
+theta <- 0.5
+
+b_avg <- avg_rep_bidi %>%
+    # group by rows, for the proportion function (which doesn't take vectors)
+    rowwise() %>%
+    # calculate number of partners going each direction
+    mutate(prop.r = get_proportion(natsal, q_sex = r_sex, q_sexact = r_sexact),
+           n_partners.r_rp = d_partners.r_rp * prop.r,
+           prop.rp = get_proportion(natsal, q_sex = rp_sex, q_sexact = rp_sexact),
+           n_partners.rp_r = d_partners.rp_r * prop.rp) %>%
+    mutate(imbalance = n_partners.r_rp / n_partners.rp_r,
+           corrected_r = d_partners.r_rp / imbalance^(1 - theta),
+           corrected_rp = d_partners.rp_r * imbalance^theta,
+           cnr = corrected_r * prop.r,
+           cnrp = corrected_rp * prop.rp) %>%
+    select(r_sex,
+           r_sexact,
+           r_demo,
+           rp_sex,
+           rp_sexact,
+           rp_demo,
+           corrected_r, 
+           corrected_rp,
+           cnr,
+           cnrp)
+
+b_avg %>%
+    kable() %>%
+    kable_styling()
+
+ggplot(b_avg) +
+    geom_tile(aes(x = r_demo, y = rp_demo, fill = corrected_r), color="black") +
+    labs(x = "Group of Partner 1",
+         y = "Group of Partner 2") +
+    scale_fill_gradient2(name="Annual Number\nof New \nPartnerships",
+                     low = "white",
+                     mid = "blue2",
+                     high = "black",
+                     midpoint = 1.5,
+                     na.value = "white") +
+    theme_minimal(base_size = 16) + 
+    coord_fixed() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          legend.title = element_text(size = 10),
+          legend.text = element_text(size =  10))
+ggsave('plots/avg_behav.png', width = 5, height = 4, units = 'in', dpi = 500)
+```
+
+Let's check that this worked:
+
+```{r}
+all(abs(b_avg$cnr - b_avg$cnrp) < .Machine$double.eps)
+```
+
+
+## Gender and Sexual Identity
+
+Now, I analyze the Natsal data with gender and sexual identity. 
+
+```{r}
+library(reshape2)
+gsa_rep <- natsal %>%
+    group_by(r_sex, r_sexid) %>%
+    summarize(het = weighted.mean(hetnonew, w = total_wt),
+              sam = weighted.mean(samnonew, w = total_wt)) %>%
+    mutate(m = ifelse(r_sex == "m", sam, het),
+           w = ifelse(r_sex == "w", sam, het)) %>%
+    select(r_sex, r_sexid, m, w) %>%
+    melt(id.vars = c('r_sex', 'r_sexid'),
+         variable.name = "rp_sex",
+         value.name = "partners") %>%
+    # add proportions
+    rowwise() %>%
+    mutate(prop = get_proportion(natsal, q_sex = r_sex,
+                                q_sexid = r_sexid),
+           n_partners = prop * partners) %>%
+    ungroup()
+gsa_rep %>%
+    kable() %>%
+    kable_styling()
+```
+
+
+```{r}
+make_offered_dists_sexid <- function(df) {
+    df %>%
+        group_by(rp_sex, r_sex) %>%
+        # define prop_to_r as the the proportion of all partners offered to r that come from rp
+        mutate(prop_to_r = n_partners / sum(n_partners)) %>%
+        select(r_sex,
+               rp_sex,
+               rp_sexid = r_sexid,
+               prop_to_r)
+}
+
+gsa_offered <- make_offered_dists_sexid(gsa_rep)
+gsa_offered %>%
+    kable() %>%
+    kable_styling()
+```
+
+Make partner distribution
+
+```{r}
+make_partner_dist_sexid <- function(survey_df, dist_df){
+    joined <- left_join(survey_df,
+                        dist_df, by = c("r_sex", "rp_sex")) %>%
+        mutate(d_partners = partners * prop_to_r,
+               n_d_partners = d_partners * prop) %>%
+        mutate(r_demo = paste(r_sex, r_sexid, sep="_"),
+                   rp_demo = paste(rp_sex, rp_sexid, sep="_"))
+    return(joined)
+}
+
+gsa_partner_dist <- make_partner_dist_sexid(gsa_rep, gsa_offered)
+gsa_partner_dist %>%
+    head() %>%
+    kable() %>%
+    kable_styling()
+```
+
+```{r}
+
+balance_gsa <- function(partner_dist_sexid, theta){
+    bidi <- partner_dist_sexid %>%
+        inner_join(partner_dist_sexid,
+                   by = c("r_sex" = "rp_sex",
+                          "r_sexid" = "rp_sexid",
+                          "rp_sex" = "r_sex",
+                          "rp_sexid" = "r_sexid",
+                          "r_demo" = "rp_demo",
+                          "rp_demo" = "r_demo"),
+                   suffix = c('.r', '.rp'))
+    
+    b_bidi <- bidi %>%
+        mutate(np_r = d_partners.r * prop.r,
+               np_rp = d_partners.rp * prop.rp) %>%
+        mutate(imbalance = np_r / np_rp,
+               corrected_r = d_partners.r / imbalance^(1 - theta),
+               corrected_rp = d_partners.rp * imbalance^theta,
+               cnr = corrected_r * prop.r,
+               cnrp = corrected_rp * prop.rp) %>%
+        select(r_demo,
+               rp_demo,
+               corrected_r, 
+               corrected_rp,
+               cnr,
+               cnrp)
+    return(b_bidi)
+}
+
+b_gsa_partner_dist <- balance_gsa(gsa_partner_dist, 0.5)
+
+b_gsa_partner_dist %>%
+    kable() %>%
+    kable_styling()
+
+ggplot(rbind(b_gsa_partner_dist)) +
+    geom_point(aes(x = r_demo, y = rp_demo, color=corrected_r, size=corrected_r)) +
+    scale_color_continuous(limits=c(0, 4), breaks = seq(0, 4)) +
+    scale_size_continuous(limits=c(0, 4), breaks = seq(0, 4)) +
+    theme_minimal(base_size = 14) + coord_fixed() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    guides(color= guide_legend(), size=guide_legend())
+```
+
+## Gender, Sexual Identity, and Sexual Activity
+
+```{r}
+library(reshape2)
+gsisa_rep <- natsal %>%
+    group_by(r_sex, r_sexid, r_sexact) %>%
+    summarize(het = weighted.mean(hetnonew, w = total_wt),
+              sam = weighted.mean(samnonew, w = total_wt)) %>%
+    mutate(m = ifelse(r_sex == "m", sam, het),
+           w = ifelse(r_sex == "w", sam, het)) %>%
+    select(r_sex, r_sexid, r_sexact, m, w) %>%
+    melt(id.vars = c('r_sex', 'r_sexid', 'r_sexact'),
+         variable.name = "rp_sex",
+         value.name = "partners") %>%
+    # add proportions
+    rowwise() %>%
+    mutate(prop = get_proportion(natsal, q_sex = r_sex,
+                                q_sexid = r_sexid, q_sexact = r_sexact),
+           n_partners = prop * partners) %>%
+    ungroup()
+gsisa_rep %>%
+    kable() %>%
+    kable_styling()
+```
+
+
+```{r}
+make_offered_dists_gsisa <- function(df) {
+    df %>%
+        group_by(rp_sex, r_sex) %>%
+        # define prop_to_r as the the proportion of all partners offered to r that come from rp
+        mutate(prop_to_r = n_partners / sum(n_partners)) %>%
+        select(r_sex,
+               rp_sex,
+               rp_sexid = r_sexid,
+               rp_sexact = r_sexact,
+               prop_to_r)
+}
+gsisa_offered <- make_offered_dists_gsisa(gsisa_rep)
+gsisa_offered %>%
+    head() %>%
+    kable() %>%
+    kable_styling()
+```
+
+Make partner distribution
+
+```{r}
+make_partner_dist_gsisa <- function(survey_df, dist_df){
+    joined <- left_join(survey_df,
+                        dist_df, by = c("r_sex", "rp_sex")) %>%
+        mutate(d_partners = partners * prop_to_r,
+               n_d_partners = d_partners * prop) %>%
+        mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep="_"),
+               rp_demo = paste(rp_sex, rp_sexid, rp_sexact, sep="_"))
+    return(joined)
+}
+
+gsisa_partner_dist <- make_partner_dist_gsisa(gsisa_rep, gsisa_offered)
+gsisa_partner_dist %>%
+    head() %>%
+    kable() %>%
+    kable_styling()
+```
+
+```{r}
+balance_gsisa <- function(partner_dist_gsisa, theta){
+    bidi <- partner_dist_gsisa %>%
+        inner_join(partner_dist_gsisa,
+                   by = c("r_sex" = "rp_sex",
+                          "r_sexid" = "rp_sexid",
+                          "r_sexact" = "rp_sexact",
+                          "rp_sex" = "r_sex",
+                          "rp_sexid" = "r_sexid",
+                          "rp_sexact" = "r_sexact",
+                          "r_demo" = "rp_demo",
+                          "rp_demo" = "r_demo"),
+                   suffix = c('.r', '.rp'))
+    
+    b_bidi <- bidi %>%
+        mutate(np_r = d_partners.r * prop.r,
+               np_rp = d_partners.rp * prop.rp) %>%
+        mutate(imbalance = np_r / np_rp,
+               corrected_r = d_partners.r / imbalance^(1 - theta),
+               corrected_rp = d_partners.rp * imbalance^theta,
+               cnr = corrected_r * prop.r,
+               cnrp = corrected_rp * prop.rp) %>%
+        select(r_demo,
+               r_sex,
+               r_sexid,
+               r_sexact,
+               prop.r,
+               rp_demo,
+               rp_sex,
+               rp_sexid,
+               rp_sexact,
+               corrected_r, 
+               corrected_rp,
+               cnr,
+               cnrp)
+    return(b_bidi)
+}
+
+b_gsisa_partner_dist <- balance_gsisa(gsisa_partner_dist, 0.5)
+
+b_gsisa_partner_dist %>%
+    kable() %>%
+    kable_styling()
+
+library(stringr)
+ggplot(rbind(b_gsisa_partner_dist)) +
+    geom_tile(aes(x = r_demo, y = rp_demo, fill=corrected_r), color="black", size = 0.2) +
+    scale_fill_gradient2(name="Annual Number\nof New Partnerships",
+                         low = "white",
+                         mid = "blue2",
+                         high = "black",
+                         midpoint = 3,
+                         na.value = "white") +
+    labs(x = "Group of Partner 1",
+         y = "Group of Partner 2") +
+    theme_minimal(base_size = 14) + coord_fixed() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("plots/gsisa_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
+```
+
+Check that this worked:
+
+```{r}
+all(with(b_gsisa_partner_dist, abs(cnr - cnrp) < .Machine$double.eps), na.rm = TRUE)
+```
+
+Write out:
+```{r}
+write.table(b_gsisa_partner_dist,
+            file = "data/natsal_msid.tab")
+
+gsisa_props <- b_gsisa_partner_dist %>%
+    group_by(r_sex, r_sexid, r_sexact) %>%
+    summarise(prop = mean(prop.r))
+write.table(gsisa_props,
+            file = "data/natsal_msid_props.tab")
+```

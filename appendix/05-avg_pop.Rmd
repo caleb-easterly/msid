@@ -1,0 +1,171 @@
+# MME: No sexID strat
+
+
+# Het, gay/lesbian, bi population, sexual activity stratification only
+
+In this model, we do not stratify by sexual identity or restrict to heterosexual sexual identity. The analysis procedure is exactly the same as for the heterosexual-only population.
+
+## Estimate the number of new partnerships with each sex
+
+```{r}
+het_partners <- all_sex %>%
+    group_by(r_sex, r_sexact) %>%
+    summarise(partners = weighted.mean(hetnonew, w = total_wt)) %>%
+    mutate(rp_sex = ifelse(r_sex == "m", 'w', 'm')) %>%
+    rowwise() %>%
+    mutate(prop = get_proportion(all_sex,
+                                 q_sex = r_sex,
+                                 q_sexact = r_sexact),
+           n_partners = partners * prop) %>%
+    ungroup()
+
+sam_partners <- all_sex %>%
+    group_by(r_sex, r_sexact) %>%
+    summarise(partners = weighted.mean(samnonew, w = total_wt)) %>%
+    mutate(rp_sex = ifelse(r_sex == "m", 'm', 'w')) %>%
+    rowwise() %>%
+    mutate(prop = get_proportion(all_sex,
+                                 q_sex = r_sex,
+                                 q_sexact = r_sexact),
+           n_partners = partners * prop) %>%
+    ungroup()
+
+sexid_nostrat_rep <- rbind(het_partners, sam_partners) %>%
+  arrange(r_sex, r_sexact)
+  
+format_table(sexid_nostrat_rep)
+```
+
+Note that the sum of the `prop` column is now 2:
+
+```{r}
+sum(sexid_nostrat_rep$prop)
+```
+
+That's because each demographic group has two entries in the table: one for partnerships with the same sex and one for the opposite sex. This format makes it easier to do the balancing, as above.
+
+Next, let's distribute the partnerships across activity levels.
+
+## Distribute partnerships
+
+```{r}
+sexid_nostrat_offered <-  sexid_nostrat_rep %>%
+  group_by(rp_sex, r_sex) %>%
+  mutate(prop_to_r = n_partners / sum(n_partners)) %>%
+  select(rp_sex,
+         r_sex,
+         rp_sexact = r_sexact,
+         prop_to_r) %>%
+  ungroup() %>%
+  arrange(rp_sex, r_sex)
+format_table(sexid_nostrat_offered)
+```
+
+Here, the percentages refer to the proportion of partnerships with people of sex `rp_sex` that are offered to `r_sex` by people with sex `rp_sex` and activity `rp_sexact`. For example, high-activity men offer about 91% percent of male partnerships to men, and high-activity women offer about 66% of female partnerships to men.
+
+Now, we join the offered table and the reported table.
+
+```{r}
+sexid_nostrat_joined <- left_join(sexid_nostrat_offered, sexid_nostrat_rep, by = c("r_sex", "rp_sex"))
+format_table(sexid_nostrat_joined)
+```
+
+The multiplication gives us the distributed parterships. Then, we define a single variable that describes the two demographic variables (sex and SA group):
+
+```{r}
+partner_dist_sexid_nostrat <- sexid_nostrat_joined %>%
+  mutate(d_partners = partners * prop_to_r,
+         r_demo = paste(r_sex, r_sexact, sep="_"),
+         rp_demo = paste(rp_sex, rp_sexact, sep="_")) %>%
+  select(r_demo, rp_demo, d_partners, prop)
+format_table(partner_dist_sexid_nostrat)
+```
+
+So, men with high sexual activity reported `r format(sexid_nostrat_rep$partners[1], digits = 3)` partners with women. In the distributed table, these partners are distributed across women with high sexual activity and women with low sexual activity.
+
+```{r}
+men_high_sa <- partner_dist_sexid_nostrat %>%
+  filter(r_demo == "m_high" & (rp_demo == "w_high" | rp_demo == "w_low"))
+format_table(men_high_sa)
+sum(men_high_sa$d_partners)
+```
+
+Similarly, high-SA men reported `r format(sexid_nostrat_rep$partners[2], digits = 3)` with men on average, which are distributed across men by sexual activity:
+
+```{r}
+men_high_sa <- partner_dist_sexid_nostrat %>%
+  filter(r_demo == "m_high" & (rp_demo == "m_high" | rp_demo == "m_low"))
+format_table(men_high_sa)
+sum(men_high_sa$d_partners)
+```
+
+## Balancing
+
+Join the distributed data frame with itself:
+
+```{r}
+sexid_nostrat_bidi <- partner_dist_sexid_nostrat %>%
+    # do a self-join t calculate partners from perspective of rp
+    inner_join(partner_dist_sexid_nostrat,
+               by = c("r_demo" = "rp_demo",
+                      "rp_demo" = "r_demo"),
+               suffix = c('.r', '.rp'))
+sexid_nostrat_bidi %>%
+  format_table()
+```
+
+
+```{r}
+theta <- 0.5
+b_sexid_nostrat_bidi <- sexid_nostrat_bidi %>%
+    mutate(np_r = d_partners.r * prop.r,
+           np_rp = d_partners.rp * prop.rp) %>%
+    mutate(imbalance = np_r / np_rp,
+           corrected_r = d_partners.r / imbalance^(1 - theta),
+           corrected_rp = d_partners.rp * imbalance^theta,
+           cnr = corrected_r * prop.r,
+           cnrp = corrected_rp * prop.rp) %>%
+    select(r_demo,
+           rp_demo,
+           prop.r,
+           np_r,
+           prop.rp,
+           np_rp,
+           d_partners.r,
+           corrected_r,
+           d_partners.rp,
+           corrected_rp,
+           imbalance,
+           cnr,
+           cnrp) %>%
+  arrange(r_demo, rp_demo)
+
+format_table(b_sexid_nostrat_bidi)
+all(with(b_sexid_nostrat_bidi, abs(cnr - cnrp) < .Machine$double.eps))
+```
+
+Balanced!
+
+### Compare
+
+```{r}
+library(stringr)
+sexid_nos_by_grp <- b_sexid_nostrat_bidi %>%
+  mutate(rp_sex = str_split(rp_demo, "_", simplify = TRUE)[, 1]) %>%
+  group_by(r_demo, rp_sex) %>%
+  summarize(bal_p_pc = sum(corrected_r))
+
+sexid_nos_compare <- sexid_nostrat_rep %>%
+  mutate(r_demo = paste(r_sex, r_sexact, sep = "_")) %>%
+  select(r_demo, rp_sex, orig_p_pc = partners) %>%
+  left_join(sexid_nos_by_grp, by = c("r_demo", "rp_sex"))
+format_table(sexid_nos_compare)
+```
+
+```{r}
+# plot with nas
+library(ggplot2)
+plot_mixing_matrix(b_sexid_nostrat_bidi)
+```
+
+
