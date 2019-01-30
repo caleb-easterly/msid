@@ -6,6 +6,13 @@
 \usage{
 likelihood_generator(so, pop_dist, contact)
 }
+\arguments{
+\item{so}{sex orientation: either "het" or "msid"}
+
+\item{pop_dist}{path to the pop dist table}
+
+\item{contact}{path to the contact table}
+}
 \description{
 Used to define a likelihood function either for het or so mixing structures
 }
