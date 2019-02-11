@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="goal-of-analysis.html">
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="goal-of-analysis.html"><a href="goal-of-analysis.html"><i class="fa fa-check"></i><b>1</b> Goal of Analysis</a><ul>
+<li class="chapter" data-level="1.1" data-path="goal-of-analysis.html"><a href="goal-of-analysis.html#data-prep"><i class="fa fa-check"></i><b>1.1</b> Data prep</a></li>
+<li class="chapter" data-level="1.2" data-path="goal-of-analysis.html"><a href="goal-of-analysis.html#relevant-variables-in-natsal"><i class="fa fa-check"></i><b>1.2</b> Relevant Variables in Natsal</a></li>
+<li class="chapter" data-level="1.3" data-path="goal-of-analysis.html"><a href="goal-of-analysis.html#analysis"><i class="fa fa-check"></i><b>1.3</b> Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="heterosexual-population.html"><a href="heterosexual-population.html"><i class="fa fa-check"></i><b>2</b> Heterosexual population</a><ul>
+<li class="chapter" data-level="2.1" data-path="heterosexual-population.html"><a href="heterosexual-population.html#estimate-the-number-of-new-partnerships-with-each-sex"><i class="fa fa-check"></i><b>2.1</b> Estimate the number of new partnerships with each sex</a></li>
+<li class="chapter" data-level="2.2" data-path="heterosexual-population.html"><a href="heterosexual-population.html#distribute-partnerships"><i class="fa fa-check"></i><b>2.2</b> Distribute partnerships</a></li>
+<li class="chapter" data-level="2.3" data-path="heterosexual-population.html"><a href="heterosexual-population.html#balancing"><i class="fa fa-check"></i><b>2.3</b> Balancing</a></li>
+<li class="chapter" data-level="2.4" data-path="heterosexual-population.html"><a href="heterosexual-population.html#compare"><i class="fa fa-check"></i><b>2.4</b> Compare</a></li>
+<li class="chapter" data-level="2.5" data-path="heterosexual-population.html"><a href="heterosexual-population.html#plot-base-case"><i class="fa fa-check"></i><b>2.5</b> Plot Base Case</a></li>
+<li class="chapter" data-level="2.6" data-path="heterosexual-population.html"><a href="heterosexual-population.html#calibration"><i class="fa fa-check"></i><b>2.6</b> Calibration</a></li>
+<li class="chapter" data-level="2.7" data-path="heterosexual-population.html"><a href="heterosexual-population.html#define-gamma-distributions"><i class="fa fa-check"></i><b>2.7</b> Define Gamma Distributions</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="heterosexual-population" class="section level1">
+<h1><span class="header-section-number">2</span> Heterosexual population</h1>
+<p>This mixing matrix is for the heterosexual-only model. There are two sexes, one sexID (heterosexual), and two SA groups, so the matrix will be 4 rows by 4 columns. As stated above, the three steps are: estimate, distribute, and balance.</p>
+<div id="estimate-the-number-of-new-partnerships-with-each-sex" class="section level2">
+<h2><span class="header-section-number">2.1</span> Estimate the number of new partnerships with each sex</h2>
+<p>This is a function that we’ll need to use to get the proportion of the population in each group. This is important because we calculate the total number of partnerships supplied by a group as the per-person number of partnerships in a certain group times the proportion of the population in that group.</p>
+<p>For example, if high-SA women had 2 partnerships per year on average and 25% of the population was high-SA women, then the group of high-SA women would have <span class="math inline">\(2 \times 0.25 = 0.5\)</span> partnerships per year. This number is called <code>part_g</code> in the code below.</p>
+<p>The reason that we use the proportion, rather than some total number of people, is that the size of the population doesn’t matter for the dynamic model. To get the absolute numbers for a population of, say, 100,000 people, we can just multiply the total number of partnerships by 100,000. That is, using the example above, high-SA women would “offer” 50,000 partnerships per year. Also note that the function uses the survey weights, rather than the number of respondents.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># the q stands for &quot;query&quot;</span>
+<span class="co"># denom stands for denominator</span>
+get_proportion &lt;-<span class="st"> </span><span class="cf">function</span>(natsal,
+                           <span class="dt">q_sex =</span> <span class="kw">c</span>(<span class="st">&quot;m&quot;</span>, <span class="st">&quot;w&quot;</span>),
+                           <span class="dt">q_sexid =</span> <span class="kw">c</span>(<span class="st">&quot;het&quot;</span>, <span class="st">&quot;gay&quot;</span>, <span class="st">&quot;bi&quot;</span>),
+                           <span class="dt">q_sexact =</span> <span class="kw">c</span>(<span class="st">&quot;high&quot;</span>, <span class="st">&quot;low&quot;</span>),
+                           <span class="dt">denom_sex =</span> <span class="kw">c</span>(<span class="st">&quot;m&quot;</span>, <span class="st">&quot;w&quot;</span>),
+                           <span class="dt">denom_sexid =</span> <span class="kw">c</span>(<span class="st">&quot;het&quot;</span>, <span class="st">&quot;gay&quot;</span>, <span class="st">&quot;bi&quot;</span>),
+                           <span class="dt">denom_sexact =</span> <span class="kw">c</span>(<span class="st">&quot;high&quot;</span>, <span class="st">&quot;low&quot;</span>)){
+    denom &lt;-<span class="st"> </span><span class="kw">sum</span>(natsal<span class="op">$</span>total_wt[natsal<span class="op">$</span>r_sex <span class="op">%in%</span><span class="st"> </span>denom_sex <span class="op">&amp;</span>
+<span class="st">                                     </span>natsal<span class="op">$</span>r_sexid <span class="op">%in%</span><span class="st"> </span>denom_sexid <span class="op">&amp;</span>
+<span class="st">                                     </span>natsal<span class="op">$</span>r_sexact <span class="op">%in%</span><span class="st"> </span>denom_sexact])
+    qpop &lt;-<span class="st"> </span><span class="kw">sum</span>(natsal[natsal<span class="op">$</span>r_sex <span class="op">%in%</span><span class="st"> </span>q_sex <span class="op">&amp;</span>
+<span class="st">                          </span>natsal<span class="op">$</span>r_sexid <span class="op">%in%</span><span class="st"> </span>q_sexid <span class="op">&amp;</span>
+<span class="st">                          </span>natsal<span class="op">$</span>r_sexact <span class="op">%in%</span><span class="st"> </span>q_sexact, <span class="st">&quot;total_wt&quot;</span>])
+    qpop <span class="op">/</span><span class="st"> </span>denom
+}</code></pre></div>
+<p>Let’s test this function. What proportion of heterosexual men have high and low sexual activity?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># high</span>
+<span class="kw">get_proportion</span>(all_sex, <span class="dt">q_sex =</span> <span class="st">&quot;m&quot;</span>, <span class="dt">q_sexact =</span> <span class="st">&quot;high&quot;</span>, <span class="dt">q_sexid =</span> <span class="st">&quot;het&quot;</span>,
+               <span class="dt">denom_sex =</span> <span class="st">&quot;m&quot;</span>, <span class="dt">denom_sexid =</span> <span class="st">&quot;het&quot;</span>)</code></pre></div>
+<pre><code>## [1] 0.1550116</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># low</span>
+<span class="kw">get_proportion</span>(all_sex, <span class="dt">q_sex =</span> <span class="st">&quot;m&quot;</span>, <span class="dt">q_sexact =</span> <span class="st">&quot;low&quot;</span>, <span class="dt">q_sexid =</span> <span class="st">&quot;het&quot;</span>,
+               <span class="dt">denom_sex =</span> <span class="st">&quot;m&quot;</span>, <span class="dt">denom_sexid =</span> <span class="st">&quot;het&quot;</span>)</code></pre></div>
+<pre><code>## [1] 0.8449884</code></pre>
+<p>They add up to 1, as should be the case.</p>
+<p>Now, we calculate the average number of new partners per-person with each sex (<code>rp_sex</code>), as well as the total number of new partners supplied by each group (<code>part_g</code>).</p>
+<p>We also calculate the standard deviation of new partners using the function <code>weighted.sd()</code>, which is based on a formula from <a href='https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance' target="_blank">Wikipedia</a>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">weighted.sd &lt;-<span class="st"> </span><span class="cf">function</span>(x, w){
+    weighted_mean &lt;-<span class="st"> </span><span class="kw">weighted.mean</span>(x, w)
+    sum_wts &lt;-<span class="st"> </span><span class="kw">sum</span>(w)
+    wt_var &lt;-<span class="st"> </span><span class="kw">t</span>(w) <span class="op">%*%</span><span class="st"> </span>(x <span class="op">-</span><span class="st"> </span>weighted_mean)<span class="op">^</span><span class="dv">2</span> <span class="op">/</span><span class="st"> </span>(sum_wts <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)
+    <span class="kw">return</span>(<span class="kw">sqrt</span>(wt_var))
+}</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">calc_reported &lt;-<span class="st"> </span><span class="cf">function</span>(df) {
+  all_sex <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">filter</span>(r_sexid <span class="op">==</span><span class="st"> &quot;het&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(r_sex, r_sexact, r_sexid) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">part_p =</span> <span class="kw">weighted.mean</span>(hetnonew, <span class="dt">w =</span> total_wt),
+              <span class="dt">sdpart =</span> <span class="kw">weighted.sd</span>(hetnonew, <span class="dt">w =</span> total_wt)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">rp_sex =</span> <span class="kw">ifelse</span>(r_sex <span class="op">==</span><span class="st"> &quot;m&quot;</span>, <span class="st">&#39;w&#39;</span>, <span class="st">&#39;m&#39;</span>)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">rowwise</span>() <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">prop =</span> <span class="kw">get_proportion</span>(all_sex,
+                                 <span class="dt">q_sex =</span> r_sex,
+                                 <span class="dt">q_sexact =</span> r_sexact,
+                                 <span class="dt">q_sexid =</span> <span class="st">&quot;het&quot;</span>,
+                                 <span class="dt">denom_sexid =</span> <span class="st">&quot;het&quot;</span>),
+           <span class="dt">part_g =</span> part_p <span class="op">*</span><span class="st"> </span>prop) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">ungroup</span>()
+}
+het_sexact_rep &lt;-<span class="st"> </span><span class="kw">calc_reported</span>(all_sex)
+<span class="kw">format_table</span>(het_sexact_rep)</code></pre></div>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+r_sex
+</th>
+<th style="text-align:left;">
+r_sexact
+</th>
+<th style="text-align:left;">
+r_sexid
+</th>
+<th style="text-align:right;">
+part_p
+</th>
+<th style="text-align:right;">
+sdpart
+</th>
+<th style="text-align:left;">
+rp_sex
+</th>
+<th style="text-align:right;">
+prop
+</th>
+<th style="text-align:right;">
+part_g
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:left;">
+het
+</td>
+<td style="text-align:right;">
+4.077
+</td>
+<td style="text-align:right;">
+3.980
+</td>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:right;">
+0.078
+</td>
+<td style="text-align:right;">
+0.318
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:left;">
+het
+</td>
+<td style="text-align:right;">
+0.232
+</td>
+<td style="text-align:right;">
+0.422
+</td>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:right;">
+0.426
+</td>
+<td style="text-align:right;">
+0.099
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:left;">
+het
+</td>
+<td style="text-align:right;">
+3.238
+</td>
+<td style="text-align:right;">
+2.140
+</td>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+<td style="text-align:right;">
+0.166
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:left;">
+het
+</td>
+<td style="text-align:right;">
+0.186
+</td>
+<td style="text-align:right;">
+0.389
+</td>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:right;">
+0.445
+</td>
+<td style="text-align:right;">
+0.083
+</td>
+</tr>
+</tbody>
+</table>
+<p>So, high activity heterosexual men report an average of about 4 new partners per year, and they make up about 7.2% of the total population (note this is roughly half of the proportion of <em>men</em> that have high sexual activity). On average, then, the group of high activity men offers a total of about 0.29 partners per year.</p>
+<p>Next, let’s distribute the partnerships across activity levels.</p>
+</div>
+<div id="distribute-partnerships" class="section level2">
+<h2><span class="header-section-number">2.2</span> Distribute partnerships</h2>
+<p>Since the respondent’s don’t know their partners’ activity levels (but do know their partners’ sex), we make the proportionality assumption and then estimate the proportion of partnerships supplied to each sex by each activity level.</p>
+<p>The most general form of this is:</p>
+<p><span class="math display">\[
+\text{Pr}(S_{rp} = s&#39;, G_{rp} = g&#39; \ | \ S_r = s, G_r = g) = \frac{N_{s&#39;g&#39;} \beta_{s&#39;g&#39;s}}{\sum_i \sum_j N_{ij} \beta_{ijs}}
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(S_r\)</span>, <span class="math inline">\(G_r\)</span>: the respondent’s sex and other demographic characteristics, respectively</li>
+<li><span class="math inline">\(S_{rp}\)</span>, <span class="math inline">\(G_{rp}\)</span>: the respondent’s partners’ sex and other demos, respectively</li>
+<li><span class="math inline">\(N_{ij}\)</span>: the proportion of people with sex <span class="math inline">\(i\)</span> who have other characteristics <span class="math inline">\(j\)</span>,</li>
+<li><span class="math inline">\(\beta_{ijk}\)</span> is the number of partnerships that people of sex <span class="math inline">\(i\)</span> with other characteristics <span class="math inline">\(j\)</span> reported with sex <span class="math inline">\(k\)</span>,</li>
+<li>the denominator is the total number of partnerships offered to sex <span class="math inline">\(s\)</span> from all demographic groups (note that, because this is a heterosexual model, the sex is assumed to be the opposite sex - i.e., <span class="math inline">\(i\)</span> is fixed at <span class="math inline">\(s&#39;\)</span>)</li>
+</ul>
+<p>To calculate this for each combination of <code>r_sex</code> and <code>rp_sex</code>, we take the total number of partnerships ‘offered’ by each sex and sexual activity group, and divide it by the total number of partnerships offered by that sex. Then, we define <code>rp_sexid = r_sexid</code>, so the proportion <code>prop_of_avail</code> represents the proportion of partnerships from people of <code>sex1</code> available to <code>sex2</code> that come from people of <code>sex1</code> and SA group <code>sexact1</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">make_offered_df &lt;-<span class="st"> </span><span class="cf">function</span>(df) {
+  het_sexact_rep <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(r_sex) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">prop_of_avail =</span> part_g <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(part_g)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">select</span>(<span class="dt">sex1 =</span> r_sex,
+           <span class="dt">sexact1 =</span> r_sexact,
+           <span class="dt">sex2 =</span> rp_sex,
+           prop_of_avail) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">ungroup</span>()
+}
+het_sexact_offered_dist &lt;-<span class="st"> </span><span class="kw">make_offered_df</span>(het_sexact_rep)
+<span class="kw">format_table</span>(het_sexact_offered_dist)</code></pre></div>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+sex1
+</th>
+<th style="text-align:left;">
+sexact1
+</th>
+<th style="text-align:left;">
+sex2
+</th>
+<th style="text-align:right;">
+prop_of_avail
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:right;">
+0.763
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:right;">
+0.237
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:right;">
+0.668
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:right;">
+0.332
+</td>
+</tr>
+</tbody>
+</table>
+<p>As an example, the above data shows that men with high sexual actvity account for 76.3% of all partnerships “offered” to women, while men with low sexual activity account for 23.7%.</p>
+<p>Let’s check this for women by hand:</p>
+<ul>
+<li>Women (as a group) reported a total of <span class="math inline">\(0.147 + 0.078 = 0.225\)</span> partnerships with men in the past year.</li>
+<li>Out of this 0.225, high activity women reported <span class="math inline">\(0.147/0.225 = 65\)</span>%, and low activity women reported <span class="math inline">\(0.078/0.225 = 35\)</span>%.</li>
+<li>So, if we assume that men do not have a preference for high/low sexual activity women, if they randomly selected a woman as a partner, there’s a 65% chance that they would choose a high-SA woman.</li>
+<li>This is the same number shown in the table above.</li>
+</ul>
+<p>Now, we distribute the partnerships across the groups. To do this, we first join the proportion dataframe with the survey dataframe. This join aligns the <code>prop_of_avail</code> and <code>part_p</code> column, so they can be multiplied. Then, we multiply to get the distributed partnerships and define a single variable that describes the two demographic variables (sex and SA group):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">distribute_partnerships &lt;-<span class="st"> </span><span class="cf">function</span>(report, dist) {
+  <span class="kw">left_join</span>(report, dist,
+                        <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;rp_sex&quot;</span> =<span class="st"> &quot;sex1&quot;</span>, <span class="st">&quot;r_sex&quot;</span> =<span class="st"> &quot;sex2&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">rename</span>(<span class="dt">rp_sexact =</span> sexact1) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">d_part_p =</span> part_p <span class="op">*</span><span class="st"> </span>prop_of_avail,
+           <span class="dt">r_demo =</span> <span class="kw">paste</span>(r_sex, r_sexact, <span class="dt">sep=</span><span class="st">&quot;_&quot;</span>),
+           <span class="dt">rp_demo =</span> <span class="kw">paste</span>(rp_sex, rp_sexact, <span class="dt">sep=</span><span class="st">&quot;_&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">select</span>(r_demo, rp_demo, d_part_p, prop)
+}
+partner_dist_het_sexact &lt;-<span class="st"> </span><span class="kw">distribute_partnerships</span>(het_sexact_rep, het_sexact_offered_dist)
+<span class="kw">format_table</span>(partner_dist_het_sexact)</code></pre></div>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+r_demo
+</th>
+<th style="text-align:left;">
+rp_demo
+</th>
+<th style="text-align:right;">
+d_part_p
+</th>
+<th style="text-align:right;">
+prop
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:right;">
+2.725
+</td>
+<td style="text-align:right;">
+0.078
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:right;">
+1.352
+</td>
+<td style="text-align:right;">
+0.078
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:right;">
+0.155
+</td>
+<td style="text-align:right;">
+0.426
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:right;">
+0.077
+</td>
+<td style="text-align:right;">
+0.426
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:right;">
+2.471
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:right;">
+0.766
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:right;">
+0.142
+</td>
+<td style="text-align:right;">
+0.445
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:right;">
+0.044
+</td>
+<td style="text-align:right;">
+0.445
+</td>
+</tr>
+</tbody>
+</table>
+<p>So, men with high sexual activity reported 4.08 partners. In the distributed table, these ~4 partners are distributed across women with high sexual activity and women with low sexual activity. Note that the proportions are roughly 65% and 35%, which is the proportion of partnerships that high SA women and low SA women offer to men, respectively (as calculated above).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">men_high_sa &lt;-<span class="st"> </span>partner_dist_het_sexact <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(r_demo <span class="op">==</span><span class="st"> &quot;m_high&quot;</span>)
+<span class="kw">format_table</span>(men_high_sa)</code></pre></div>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+r_demo
+</th>
+<th style="text-align:left;">
+rp_demo
+</th>
+<th style="text-align:right;">
+d_part_p
+</th>
+<th style="text-align:right;">
+prop
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:right;">
+2.725
+</td>
+<td style="text-align:right;">
+0.078
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:right;">
+1.352
+</td>
+<td style="text-align:right;">
+0.078
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sum</span>(men_high_sa<span class="op">$</span>d_part_p)</code></pre></div>
+<pre><code>## [1] 4.077152</code></pre>
+</div>
+<div id="balancing" class="section level2">
+<h2><span class="header-section-number">2.3</span> Balancing</h2>
+<p>Notice that the partnerships are unbalanced. That is, if we calculate the total number of partnerships offered by each group, high SA men report a different number of partnerships with high SA women than high SA women do with high SA men.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">partner_dist_het_sexact <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">total_group_pships =</span> d_part_p <span class="op">*</span><span class="st"> </span>prop) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>((r_demo <span class="op">==</span><span class="st"> &quot;m_high&quot;</span> <span class="op">&amp;</span><span class="st"> </span>rp_demo <span class="op">==</span><span class="st"> &quot;w_high&quot;</span>) <span class="op">|</span><span class="st"> </span>(rp_demo <span class="op">==</span><span class="st"> &quot;m_high&quot;</span> <span class="op">&amp;</span><span class="st"> </span>r_demo <span class="op">==</span><span class="st"> &quot;w_high&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select</span>(r_demo, rp_demo, total_group_pships) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">format_table</span>()</code></pre></div>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+r_demo
+</th>
+<th style="text-align:left;">
+rp_demo
+</th>
+<th style="text-align:right;">
+total_group_pships
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:right;">
+0.213
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:right;">
+0.127
+</td>
+</tr>
+</tbody>
+</table>
+<p>This could be do to random error, under- or over-reporting, or a non-representative survey sample. In any case, we have to ensure that all the partnerships are “realized” - i.e., that the same number are reported by each group participating in the partnership.</p>
+<p>To remedy this, we follow Garnett et al., 1994, who define an imbalance <span class="math inline">\(B\)</span> and then correct the partnerships by multiplying the unbalanced partnering rates by powers of <span class="math inline">\(B\)</span>.</p>
+<p>Here, since we have distributed the partnerships across sexual activity groups, we have <span class="math inline">\(\beta_{sgs&#39;g&#39;}\)</span> as the number of per-person partnerships that group <span class="math inline">\(sg\)</span> has with group <span class="math inline">\(s&#39;g&#39;\)</span>. The imbalance from the perspective of <span class="math inline">\(sg\)</span> is <span class="math inline">\(B_{sg}\)</span>:</p>
+<p><span class="math display">\[
+B_{sg} = \frac{N_{sg} \beta_{sgs&#39;g&#39;}}{N_{s&#39;g&#39;} \beta_{s&#39;g&#39;sg}}
+\]</span></p>
+<p>Then, the corrected PRs are defined as:</p>
+<span class="math display">\[\begin{aligned}
+\beta_{sgs&#39;g&#39;}^* &amp;= \beta_{sgs&#39;g&#39;} / \sqrt{B_{sg}} \\
+\beta_{s&#39;g&#39;sg}^* &amp;= \beta_{s&#39;g&#39;sg} \times \sqrt{B_{sg}} \\
+
+\end{aligned}\]</span>
+<p>While Garnett, et al., 1994 uses different powers of <span class="math inline">\(B\)</span>, we don’t necessarily have information about whether the <code>m_high</code> or <code>w_high</code> number is more reliable (and the interpretation of the power of <span class="math inline">\(B\)</span> becomes increasingly difficult with multiple sexIDs).</p>
+<p>To do this in the code, we join the distributed data frame with itself, reversing the demographic groups. The suffixes show the origin of the numbers - <code>d_part_p.r</code> is the number of partners that the <code>r</code> groups report with <code>rp</code>, and <code>d_part_p.rp</code> is the opposite.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">make_bidirectional &lt;-<span class="st"> </span><span class="cf">function</span>(df) {
+  df <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="co"># do a self-join to calculate partners from perspective of rp</span>
+<span class="st">    </span><span class="kw">inner_join</span>(df,
+               <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;r_demo&quot;</span> =<span class="st"> &quot;rp_demo&quot;</span>,
+                      <span class="st">&quot;rp_demo&quot;</span> =<span class="st"> &quot;r_demo&quot;</span>),
+               <span class="dt">suffix =</span> <span class="kw">c</span>(<span class="st">&#39;.r&#39;</span>, <span class="st">&#39;.rp&#39;</span>))
+}
+natsal_het_bidi &lt;-<span class="st"> </span><span class="kw">make_bidirectional</span>(partner_dist_het_sexact)
+natsal_het_bidi <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">format_table</span>()</code></pre></div>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+r_demo
+</th>
+<th style="text-align:left;">
+rp_demo
+</th>
+<th style="text-align:right;">
+d_part_p.r
+</th>
+<th style="text-align:right;">
+prop.r
+</th>
+<th style="text-align:right;">
+d_part_p.rp
+</th>
+<th style="text-align:right;">
+prop.rp
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:right;">
+2.725
+</td>
+<td style="text-align:right;">
+0.078
+</td>
+<td style="text-align:right;">
+2.471
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:right;">
+1.352
+</td>
+<td style="text-align:right;">
+0.078
+</td>
+<td style="text-align:right;">
+0.142
+</td>
+<td style="text-align:right;">
+0.445
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:right;">
+0.155
+</td>
+<td style="text-align:right;">
+0.426
+</td>
+<td style="text-align:right;">
+0.766
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:right;">
+0.077
+</td>
+<td style="text-align:right;">
+0.426
+</td>
+<td style="text-align:right;">
+0.044
+</td>
+<td style="text-align:right;">
+0.445
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:right;">
+2.471
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+<td style="text-align:right;">
+2.725
+</td>
+<td style="text-align:right;">
+0.078
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:right;">
+0.766
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+<td style="text-align:right;">
+0.155
+</td>
+<td style="text-align:right;">
+0.426
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:right;">
+0.142
+</td>
+<td style="text-align:right;">
+0.445
+</td>
+<td style="text-align:right;">
+1.352
+</td>
+<td style="text-align:right;">
+0.078
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:right;">
+0.044
+</td>
+<td style="text-align:right;">
+0.445
+</td>
+<td style="text-align:right;">
+0.077
+</td>
+<td style="text-align:right;">
+0.426
+</td>
+</tr>
+</tbody>
+</table>
+<p>We set <code>theta</code> to 0.5 - note that 0.5 is the only value of <code>theta</code> that actually “works” with this method. Otherwise, <code>corrected_r</code> and <code>corrected_rp</code> do not equal each other when <code>r_demo</code> and <code>rp_demo</code> are exchanged.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">balance_het &lt;-<span class="st"> </span><span class="cf">function</span>(df, <span class="dt">theta =</span> <span class="fl">0.5</span>) {
+  df <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">np_r =</span> d_part_p.r <span class="op">*</span><span class="st"> </span>prop.r,
+           <span class="dt">np_rp =</span> d_part_p.rp <span class="op">*</span><span class="st"> </span>prop.rp) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">imbalance =</span> np_r <span class="op">/</span><span class="st"> </span>np_rp,
+           <span class="dt">corrected_r =</span> d_part_p.r <span class="op">/</span><span class="st"> </span>imbalance<span class="op">^</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>theta),
+           <span class="dt">corrected_rp =</span> d_part_p.rp <span class="op">*</span><span class="st"> </span>imbalance<span class="op">^</span>theta,
+           <span class="dt">cnr =</span> corrected_r <span class="op">*</span><span class="st"> </span>prop.r,
+           <span class="dt">cnrp =</span> corrected_rp <span class="op">*</span><span class="st"> </span>prop.rp) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">select</span>(r_demo, rp_demo, prop.r, 
+           d_part_p.r, corrected_r,
+           cnr, cnrp)
+}
+
+b_natsal_het_bidi &lt;-<span class="st"> </span><span class="kw">balance_het</span>(natsal_het_bidi)
+
+<span class="kw">format_table</span>(b_natsal_het_bidi)</code></pre></div>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+r_demo
+</th>
+<th style="text-align:left;">
+rp_demo
+</th>
+<th style="text-align:right;">
+prop.r
+</th>
+<th style="text-align:right;">
+d_part_p.r
+</th>
+<th style="text-align:right;">
+corrected_r
+</th>
+<th style="text-align:right;">
+cnr
+</th>
+<th style="text-align:right;">
+cnrp
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:right;">
+0.078
+</td>
+<td style="text-align:right;">
+2.725
+</td>
+<td style="text-align:right;">
+2.106
+</td>
+<td style="text-align:right;">
+0.164
+</td>
+<td style="text-align:right;">
+0.164
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:right;">
+0.078
+</td>
+<td style="text-align:right;">
+1.352
+</td>
+<td style="text-align:right;">
+1.045
+</td>
+<td style="text-align:right;">
+0.082
+</td>
+<td style="text-align:right;">
+0.082
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:right;">
+0.426
+</td>
+<td style="text-align:right;">
+0.155
+</td>
+<td style="text-align:right;">
+0.120
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:right;">
+0.426
+</td>
+<td style="text-align:right;">
+0.077
+</td>
+<td style="text-align:right;">
+0.059
+</td>
+<td style="text-align:right;">
+0.025
+</td>
+<td style="text-align:right;">
+0.025
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+<td style="text-align:right;">
+2.471
+</td>
+<td style="text-align:right;">
+3.197
+</td>
+<td style="text-align:right;">
+0.164
+</td>
+<td style="text-align:right;">
+0.164
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+<td style="text-align:right;">
+0.766
+</td>
+<td style="text-align:right;">
+0.991
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+<td style="text-align:right;">
+0.051
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:right;">
+0.445
+</td>
+<td style="text-align:right;">
+0.142
+</td>
+<td style="text-align:right;">
+0.183
+</td>
+<td style="text-align:right;">
+0.082
+</td>
+<td style="text-align:right;">
+0.082
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:right;">
+0.445
+</td>
+<td style="text-align:right;">
+0.044
+</td>
+<td style="text-align:right;">
+0.057
+</td>
+<td style="text-align:right;">
+0.025
+</td>
+<td style="text-align:right;">
+0.025
+</td>
+</tr>
+</tbody>
+</table>
+<p>Balanced! Let’s check that this worked.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">all</span>(<span class="kw">with</span>(b_natsal_het_bidi, <span class="kw">abs</span>(cnr <span class="op">-</span><span class="st"> </span>cnrp) <span class="op">&lt;</span><span class="st"> </span>.Machine<span class="op">$</span>double.eps))</code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<p>It works.</p>
+<p>Also, we can take a single pair of groups and double check that the answer makes sense. High-SA men had 2.6 partnerships with high-SA women per person, which is <span class="math inline">\(2.6 \times 0.072 = 0.1872\)</span> partnerships supplied by the group. Alternately, high-SA women had 2.5 partnerships with high-SA men per person, but only formed 4.5% of the population, so the group supplied <span class="math inline">\(2.5 \times 0.045 = 0.1125\)</span> partnerships.</p>
+<p>The imbalance (with men in the numerator) is then <span class="math inline">\(0.1872 / 0.1125 = 1.664\)</span>. The corrected partnerships for men is <span class="math inline">\(2.6 / 1.664 ^ {0.5} = 2.01\)</span>, and for women the corrected partnerships are <span class="math inline">\(2.5 \times 1.664 ^ {0.5} = 3.2\)</span>. Now, we have <span class="math inline">\(2.01 \times 0.072 = 0.14\)</span>, and <span class="math inline">\(3.2 \times 0.045 = 0.14\)</span>, so the partnerships are balanced.</p>
+</div>
+<div id="compare" class="section level2">
+<h2><span class="header-section-number">2.4</span> Compare</h2>
+<p>Also, we can compare the original total number of partnerships with the balanced total number of partnerships, by group.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># define a function, to use later</span>
+compare_bal_orig &lt;-<span class="st"> </span><span class="cf">function</span>(bal, rep) {
+  b_by_group &lt;-<span class="st"> </span>bal <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(r_demo) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">summarize</span>(<span class="dt">bal_p_pc =</span> <span class="kw">sum</span>(corrected_r))
+
+  b_compare &lt;-<span class="st"> </span>rep <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">r_demo =</span> <span class="kw">paste</span>(r_sex, r_sexact, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">select</span>(r_demo, <span class="dt">orig_p_pc =</span> part_p) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">left_join</span>(b_by_group, <span class="dt">by =</span> <span class="st">&quot;r_demo&quot;</span>)
+
+  <span class="kw">return</span>(b_compare)
+}
+
+het_compare &lt;-<span class="st"> </span><span class="kw">compare_bal_orig</span>(b_natsal_het_bidi, het_sexact_rep)
+<span class="kw">format_table</span>(het_compare)</code></pre></div>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+r_demo
+</th>
+<th style="text-align:right;">
+orig_p_pc
+</th>
+<th style="text-align:right;">
+bal_p_pc
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+m_high
+</td>
+<td style="text-align:right;">
+4.077
+</td>
+<td style="text-align:right;">
+3.151
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_low
+</td>
+<td style="text-align:right;">
+0.232
+</td>
+<td style="text-align:right;">
+0.179
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_high
+</td>
+<td style="text-align:right;">
+3.238
+</td>
+<td style="text-align:right;">
+4.189
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w_low
+</td>
+<td style="text-align:right;">
+0.186
+</td>
+<td style="text-align:right;">
+0.240
+</td>
+</tr>
+</tbody>
+</table>
+<p>We can see that high-SA women’s partnerships increased, while high-SA men’s partnerships decreased. This is because there was a higher proportion of high SA-men than high-SA women.</p>
+<p>Now, let’s go down to the columns we actually need.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">b_natsal_het_clean &lt;-<span class="st"> </span>b_natsal_het_bidi <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select</span>(r_demo, rp_demo, <span class="dt">prop =</span> prop.r, corrected_r)</code></pre></div>
+<p>Also, remember that, in this model, we are assuming that people of the same sex have no sexual interaction. We make a dataframe of 0s to append to the calculated partnership numbers.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># for plotting, I want to emphasize the zeros between same-sex</span>
+na_demos &lt;-<span class="st"> </span><span class="kw">mutate</span>(b_natsal_het_clean,
+                   <span class="dt">r_demo =</span> r_demo,
+                   <span class="dt">rp_demo =</span> <span class="kw">rev</span>(rp_demo),
+                   <span class="dt">corrected_r =</span> <span class="dv">0</span>)
+<span class="kw">head</span>(na_demos)</code></pre></div>
+<pre><code>## # A tibble: 6 x 4
+##   r_demo rp_demo   prop corrected_r
+##   &lt;chr&gt;  &lt;chr&gt;    &lt;dbl&gt;       &lt;dbl&gt;
+## 1 m_high m_low   0.0781           0
+## 2 m_high m_high  0.0781           0
+## 3 m_low  m_low   0.426            0
+## 4 m_low  m_high  0.426            0
+## 5 w_high w_low   0.0514           0
+## 6 w_high w_high  0.0514           0</code></pre>
+<p>We combine the data frames:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(usethis)
+contact_het_base &lt;-<span class="st"> </span><span class="kw">rbind</span>(b_natsal_het_clean, na_demos)
+<span class="kw">use_data</span>(contact_het_base, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre><code>## ✔ Saving &#39;contact_het_base&#39; to &#39;data/contact_het_base.rda&#39;</code></pre>
+</div>
+<div id="plot-base-case" class="section level2">
+<h2><span class="header-section-number">2.5</span> Plot Base Case</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># plot with nas</span>
+contact_het_plot &lt;-<span class="st"> </span>contact_het_base
+contact_het_plot[contact_het_plot <span class="op">==</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+
+<span class="co"># define as a function, because it&#39;s repeated</span>
+<span class="kw">library</span>(ggplot2)
+plot_mixing_matrix &lt;-<span class="st"> </span><span class="cf">function</span>(df) {
+  <span class="kw">ggplot</span>(df) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_tile</span>(<span class="kw">aes</span>(<span class="dt">x =</span> r_demo, <span class="dt">y =</span> rp_demo, <span class="dt">fill=</span>corrected_r), <span class="dt">color=</span><span class="st">&quot;black&quot;</span>, <span class="dt">size =</span> <span class="fl">0.2</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">scale_fill_gradient2</span>(<span class="dt">name=</span><span class="st">&quot;Annual Number</span><span class="ch">\n</span><span class="st">of New Partnerships&quot;</span>,
+                         <span class="dt">low =</span> <span class="st">&quot;white&quot;</span>,
+                         <span class="dt">mid =</span> <span class="st">&quot;blue2&quot;</span>,
+                         <span class="dt">high =</span> <span class="st">&quot;black&quot;</span>,
+                         <span class="dt">midpoint =</span> <span class="fl">1.5</span>,
+                         <span class="dt">na.value =</span> <span class="st">&quot;white&quot;</span>,
+                         <span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">100</span>)) <span class="op">+</span>
+<span class="st">    </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Group of Partner 1&quot;</span>,
+         <span class="dt">y =</span> <span class="st">&quot;Group of Partner 2&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">theme_minimal</span>(<span class="dt">base_size =</span> <span class="dv">14</span>) <span class="op">+</span><span class="st"> </span><span class="kw">coord_fixed</span>() <span class="op">+</span>
+<span class="st">    </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust =</span> <span class="dv">1</span>))
+}
+
+<span class="kw">plot_mixing_matrix</span>(contact_het_plot)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+</div>
+<div id="calibration" class="section level2">
+<h2><span class="header-section-number">2.6</span> Calibration</h2>
+<p>The average partnering rate is known with some uncertainty. We already calculated the standard deviation of the responses:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">het_sexact_rep <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select</span>(r_sex, r_sexact, part_p, sdpart) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">format_table</span>()</code></pre></div>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+r_sex
+</th>
+<th style="text-align:left;">
+r_sexact
+</th>
+<th style="text-align:right;">
+part_p
+</th>
+<th style="text-align:right;">
+sdpart
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+4.077
+</td>
+<td style="text-align:right;">
+3.980
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+0.232
+</td>
+<td style="text-align:right;">
+0.422
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:left;">
+high
+</td>
+<td style="text-align:right;">
+3.238
+</td>
+<td style="text-align:right;">
+2.140
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:left;">
+low
+</td>
+<td style="text-align:right;">
+0.186
+</td>
+<td style="text-align:right;">
+0.389
+</td>
+</tr>
+</tbody>
+</table>
+<p>To ensure that the steady-state model prevalence matches observed prevalence, we calibrate the model to published prevalence estimates. This includes epidemiological parameters and sexual behavior parameters.</p>
+<p>For the SPRs, we define gamma distributions for each demographic group using the method of moments, which means we match the mean and standard deviation. These distributions are then used within the Bayesian calibration procedure.</p>
+</div>
+<div id="define-gamma-distributions" class="section level2">
+<h2><span class="header-section-number">2.7</span> Define Gamma Distributions</h2>
+<p>We use this function to calculate Gamma distributions using the method of moments:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gamma_params &lt;-<span class="st"> </span><span class="cf">function</span>(mu, sigma, <span class="dt">scale =</span> <span class="ot">FALSE</span>){
+  <span class="cf">if</span> (scale){
+    shape &lt;-<span class="st"> </span>(mu<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span>(sigma<span class="op">^</span><span class="dv">2</span>)
+    scale &lt;-<span class="st"> </span>(sigma<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span>mu
+    params &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">shape =</span> shape, 
+                   <span class="dt">scale =</span> scale)
+  } <span class="cf">else</span> {
+    shape &lt;-<span class="st"> </span>(mu<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span>(sigma<span class="op">^</span><span class="dv">2</span>)
+    rate  &lt;-<span class="st"> </span>mu<span class="op">/</span>(sigma<span class="op">^</span><span class="dv">2</span>)
+    params &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">shape =</span> shape, 
+                   <span class="dt">rate  =</span> rate)
+  }
+  <span class="kw">return</span>(params)
+}</code></pre></div>
+<p>We do it for each demo group:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gparms &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="cf">function</span>(i) <span class="kw">gamma_params</span>(het_sexact_rep<span class="op">$</span>part_p[i], het_sexact_rep<span class="op">$</span>sdpart[i]))</code></pre></div>
+<p>Let’s look at the prior distributions:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ether &lt;-<span class="st"> </span><span class="kw">lapply</span>(gparms, <span class="cf">function</span>(p)
+    <span class="kw">curve</span>(<span class="kw">dgamma</span>(x, <span class="dt">shape =</span> p<span class="op">$</span>shape, <span class="dt">rate =</span> p<span class="op">$</span>rate), <span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> p<span class="op">$</span>shape <span class="op">/</span><span class="st"> </span>p<span class="op">$</span>rate <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>p<span class="op">$</span>shape <span class="op">/</span><span class="st"> </span>p<span class="op">$</span>rate<span class="op">^</span><span class="dv">2</span>))</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-20-1.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-20-2.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-20-3.png" width="672" /><img src="_main_files/figure-html/unnamed-chunk-20-4.png" width="672" /></p>
+<!-- ### Sample From Gamma and carry out 3-step process -->
+<!-- Function to return a vector of average partering rates. -->
+<!-- ```{r} -->
+<!-- sample_gams <- function(gparms) { -->
+<!--   c <- sapply(1:4, function(i) rgamma(1, shape = gparms[[i]]$shape, rate = gparms[[i]]$rate)) -->
+<!-- } -->
+<!-- ``` -->
+<!-- Function to replace in reported data frame. -->
+<!-- ```{r} -->
+<!-- replace_pr <- function(reported, new_pr) { -->
+<!--   reported$partners <- new_pr -->
+<!--   return(reported) -->
+<!-- } -->
+<!-- ``` -->
+<!-- We define a function that carries out the whole 3-step process, from the reported to balanced partnerships: -->
+<!-- ```{r} -->
+<!-- from_rep_to_bal <- function(reported) { -->
+<!--   offered <- make_offered_df(reported) -->
+<!--   dist <- distribute_partnerships(reported, offered) -->
+<!--   bidi <- make_bidirectional(dist) -->
+<!--   balanced <- balance_het(bidi) -->
+<!--   return(balanced) -->
+<!-- } -->
+<!-- ``` -->
+<!-- Now, actually run the samples. -->
+<!-- ```{r} -->
+<!-- pr_samples <- function(gparms, reported) { -->
+<!--   means <- sample_gams(gparms) -->
+<!--   reprep <- replace_pr(reported, means) -->
+<!--   bal <- from_rep_to_bal(reprep) -->
+<!--   bal$corrected_r -->
+<!-- } -->
+<!-- set.seed(101) -->
+<!-- sampled <- t(replicate(1000, pr_samples(gparms, het_sexact_rep))) -->
+<!-- ``` -->
+<!-- ### Plot distributions for each group -->
+<!-- ```{r} -->
+<!-- p1 <- b_natsal_het_clean$r_demo -->
+<!-- p2 <- b_natsal_het_clean$rp_demo -->
+<!-- dist_df <- data.frame('grps' = paste0(p1, "/", p2)) -->
+<!-- descript_mat <- matrix(0, nrow = 8, ncol = 5) -->
+<!-- for (i in 1:8){ -->
+<!--   samps <- sampled[, i] -->
+<!--   hist(samps, main = dist_df$grps[i], breaks = 100) -->
+<!--   mn <- mean(samps) -->
+<!--   sd <- sd(samps) -->
+<!--   descript <- quantile(samps) -->
+<!--   abline(v = mn, col = "green", lwd = 2) -->
+<!--   dist_df$mean[i] <- mn -->
+<!--   dist_df$sd[i] <- sd -->
+<!--   descript_mat[i, ] <- descript -->
+<!-- } -->
+<!-- colnames(descript_mat) <- c('min', 'q25', 'med', 'q75', 'max') -->
+<!-- dist_df <- cbind(dist_df, descript_mat) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- dist_df %>% -->
+<!--     kable(digits = 3) %>% -->
+<!--     kable_styling() -->
+<!-- ``` -->
+<!-- ### Use data in msid package -->
+<!-- ```{r} -->
+<!-- het_base_case <- b_natsal_het_clean -->
+<!-- colnames(sampled) <- p1 -->
+<!-- contact_het_samples <- sampled -->
+<!-- library(usethis) -->
+<!-- use_data(contact_het_samples, overwrite = TRUE) -->
+<!-- ``` -->
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="goal-of-analysis.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="index.html">
+<link rel="next" href="heterosexual-population.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="goal-of-analysis.html"><a href="goal-of-analysis.html"><i class="fa fa-check"></i><b>1</b> Goal of Analysis</a><ul>
+<li class="chapter" data-level="1.1" data-path="goal-of-analysis.html"><a href="goal-of-analysis.html#data-prep"><i class="fa fa-check"></i><b>1.1</b> Data prep</a></li>
+<li class="chapter" data-level="1.2" data-path="goal-of-analysis.html"><a href="goal-of-analysis.html#relevant-variables-in-natsal"><i class="fa fa-check"></i><b>1.2</b> Relevant Variables in Natsal</a></li>
+<li class="chapter" data-level="1.3" data-path="goal-of-analysis.html"><a href="goal-of-analysis.html#analysis"><i class="fa fa-check"></i><b>1.3</b> Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="heterosexual-population.html"><a href="heterosexual-population.html"><i class="fa fa-check"></i><b>2</b> Heterosexual population</a><ul>
+<li class="chapter" data-level="2.1" data-path="heterosexual-population.html"><a href="heterosexual-population.html#estimate-the-number-of-new-partnerships-with-each-sex"><i class="fa fa-check"></i><b>2.1</b> Estimate the number of new partnerships with each sex</a></li>
+<li class="chapter" data-level="2.2" data-path="heterosexual-population.html"><a href="heterosexual-population.html#distribute-partnerships"><i class="fa fa-check"></i><b>2.2</b> Distribute partnerships</a></li>
+<li class="chapter" data-level="2.3" data-path="heterosexual-population.html"><a href="heterosexual-population.html#balancing"><i class="fa fa-check"></i><b>2.3</b> Balancing</a></li>
+<li class="chapter" data-level="2.4" data-path="heterosexual-population.html"><a href="heterosexual-population.html#compare"><i class="fa fa-check"></i><b>2.4</b> Compare</a></li>
+<li class="chapter" data-level="2.5" data-path="heterosexual-population.html"><a href="heterosexual-population.html#plot-base-case"><i class="fa fa-check"></i><b>2.5</b> Plot Base Case</a></li>
+<li class="chapter" data-level="2.6" data-path="heterosexual-population.html"><a href="heterosexual-population.html#calibration"><i class="fa fa-check"></i><b>2.6</b> Calibration</a></li>
+<li class="chapter" data-level="2.7" data-path="heterosexual-population.html"><a href="heterosexual-population.html#define-gamma-distributions"><i class="fa fa-check"></i><b>2.7</b> Define Gamma Distributions</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="goal-of-analysis" class="section level1">
+<h1><span class="header-section-number">1</span> Goal of Analysis</h1>
+<p>The goal is to estimate the annual number of new partnerships between each group of people in the model.</p>
+<p>In the paper, we use three model populations:</p>
+<ol style="list-style-type: decimal">
+<li>Heterosexual population, sexual activity stratification only</li>
+<li>Het, gay/lesbian, bi population, sexual activity stratification only</li>
+<li>Het, gay/lesbian, bi population, sexual activity and sexID stratification</li>
+</ol>
+<p>In the Natsal data, we know the sex, self-reported sexual identity (sexID), and sexual activity group (SA) of the respondents, as well as the sex of the respondents’ partners. The main problem is that the respondents don’t report (and/or don’t know) the sexID or SA of their partner. So, we know the total number of partners that each group has with each sex, but we’ll have to distribute these partnerships among sexIDs and SAs.</p>
+<p>Because there doesn’t seem to be much information on how people mix regarding sexIDs or SAs, we make the proportionate assumption, which amounts to assuming that people have no preference for sexID or SA - they simply choose randomly (uniformly) among what is available to them.</p>
+<p>The analysis has three steps:</p>
+<ol style="list-style-type: decimal">
+<li>Estimate the number of new partnerships with each sex</li>
+<li>Distribute partnerships across sexual identities and sexual activity groups using the proportionality assumption</li>
+<li>Balance the resulting distributed partnerships</li>
+</ol>
+<p>We carry out the analysis for each model population.</p>
+<div id="data-prep" class="section level2">
+<h2><span class="header-section-number">1.1</span> Data prep</h2>
+<p>First, we read in the Natsal data and prepare it for analysis. We use the following R packages:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
+<span class="kw">library</span>(reshape2)
+<span class="kw">library</span>(ggplot2)
+<span class="kw">library</span>(knitr)
+<span class="kw">library</span>(kableExtra)</code></pre></div>
+<p>This is a function to pretty-print tables.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">format_table &lt;-<span class="st"> </span><span class="cf">function</span>(df) {
+  df <span class="op">%&gt;%</span>
+<span class="st">    </span>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="dt">booktabs =</span> <span class="ot">TRUE</span>, <span class="dt">digits =</span> <span class="dv">3</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span>kableExtra<span class="op">::</span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="st">&quot;striped&quot;</span>,
+                              <span class="dt">latex_options =</span> <span class="kw">c</span>(<span class="st">&quot;scale_down&quot;</span>, <span class="st">&quot;striped&quot;</span>))
+}</code></pre></div>
+</div>
+<div id="relevant-variables-in-natsal" class="section level2">
+<h2><span class="header-section-number">1.2</span> Relevant Variables in Natsal</h2>
+<p>The following variables in the Natsal data set are relevant to our analysis:</p>
+<ul>
+<li>rsex: respondent’s sex
+<ul>
+<li>1 is male</li>
+<li>2 is female</li>
+</ul></li>
+<li>sexid: sexual identity
+<ul>
+<li>1: heterosexual / straight</li>
+<li>2: gay / lesbian</li>
+<li>3: bisexual</li>
+<li>4: other</li>
+<li>9: not answered</li>
+</ul></li>
+<li>everhet: ever had a heterosexual sexual partnership
+<ul>
+<li>1 is yes</li>
+<li>0 is no</li>
+<li>9 is “unclassifiable”</li>
+</ul></li>
+<li>eversam: Ever had a same-sex partnership
+<ul>
+<li>1 is yes</li>
+<li>2 is no</li>
+<li>9: NA</li>
+<li>-1: not answered</li>
+</ul></li>
+<li>hetnonew: total number of new heterosexual partners in the past year
+<ul>
+<li>0: if het1yr=0 | (het1yr=1 &amp; hetnewp=2)</li>
+<li>1: if het1yr=1 &amp; hetnewp=1</li>
+<li>99: not answered if missing</li>
+<li>-1: not applicable if het1yr=-1</li>
+</ul></li>
+<li>samnonew: no. of new hom. sex partners, last year
+<ul>
+<li>0 if sam1yr=0 | (sam1yr=1 &amp; samnewp=2)</li>
+<li>1 if sam1yr=1 &amp; samnewp=1</li>
+<li>copy hnonewp if sam1yr&gt;1 &amp; sam1yr&lt;995</li>
+<li>999: not answered if missing</li>
+<li>-1: not applicable if sam1yr=-1</li>
+</ul></li>
+<li>totnewyr: no. of new het. &amp; hom. sex partners, last year
+<ul>
+<li>compute hetnonew + samnonew if hetnonew&gt;=0 &amp; hetnonew&lt;999 &amp; samnonew&gt;=0 &amp; samnonew&lt;999</li>
+<li>else hetnonew if samnonew=-1 &amp; hetnonew&gt;=0 &amp; hetnonew&lt;999</li>
+<li>else samnonew if hetnonew=-1 &amp; samnonew&gt;=0 &amp; samnonew&lt;999</li>
+<li>999: not answered if hetnonew=999 | samnonew=999</li>
+<li>-1: not applicable if hetnonew =-1 | samnonew =-1</li>
+</ul></li>
+</ul>
+</div>
+<div id="analysis" class="section level2">
+<h2><span class="header-section-number">1.3</span> Analysis</h2>
+<p>Load NATSAL data in R form:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;../../old/sfceSO/natsal_R_df.rda&quot;</span>)</code></pre></div>
+<p>We focus on a higher-risk age group: 18-year-olds to 35-year-olds.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">MIN_AGE &lt;-<span class="st"> </span><span class="dv">18</span>
+MAX_AGE &lt;-<span class="st"> </span><span class="dv">35</span>
+
+natsal_hr &lt;-<span class="st"> </span><span class="kw">filter</span>(natsal_R_df, dage <span class="op">&gt;=</span><span class="st"> </span>MIN_AGE <span class="op">&amp;</span><span class="st"> </span>dage <span class="op">&lt;=</span><span class="st"> </span>MAX_AGE)</code></pre></div>
+<p>Next, we make new indicator variables, recode some variables to make their values more transparent, and select only relevant variables.</p>
+<p>We make two other choices:</p>
+<ol style="list-style-type: decimal">
+<li>Exclude anyone who doesn’t report a sexual identity of heterosexual, gay, or bisexual. A large percentage (over 99%) report one of these three sexual identities.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">natsal_filt &lt;-<span class="st"> </span>natsal_hr <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(sexid <span class="op">==</span><span class="st"> </span><span class="dv">1</span> <span class="op">|</span><span class="st"> </span>sexid <span class="op">==</span><span class="st"> </span><span class="dv">2</span> <span class="op">|</span><span class="st"> </span>sexid <span class="op">==</span><span class="st"> </span><span class="dv">3</span>)
+<span class="kw">nrow</span>(natsal_filt) <span class="op">/</span><span class="st"> </span><span class="kw">nrow</span>(natsal_hr)</code></pre></div>
+<pre><code>## [1] 0.9942625</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Remove missing partner data. For <code>hetnonew</code>, “99” indicates missingness and “-1” indicates “not applicable”. For <code>samnonew</code>, “999” indicates missingness and “-1” is not applicable. Again, the missing data is a small proportion of the total (less than 3%).</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">natsal_filt2 &lt;-<span class="st"> </span>natsal_filt <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(hetnonew <span class="op">&lt;</span><span class="st"> </span><span class="dv">99</span> <span class="op">&amp;</span><span class="st"> </span>samnonew <span class="op">&lt;</span><span class="st"> </span><span class="dv">995</span> <span class="op">&amp;</span><span class="st"> </span>hetnonew <span class="op">&gt;=</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>samnonew <span class="op">&gt;=</span><span class="st"> </span><span class="dv">0</span>)
+<span class="kw">nrow</span>(natsal_filt2)<span class="op">/</span><span class="kw">nrow</span>(natsal_filt)</code></pre></div>
+<pre><code>## [1] 0.9763547</code></pre>
+<p>Now, we recode the sexid to allow for easier interpretation.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">recode_sexid &lt;-<span class="st"> </span><span class="cf">function</span>(sexid){
+  new_sexid &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>, <span class="kw">length</span>(sexid))
+  new_sexid[sexid <span class="op">==</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> &#39;het&#39;</span>
+  new_sexid[sexid <span class="op">==</span><span class="st"> </span><span class="dv">2</span>] &lt;-<span class="st"> &#39;gay&#39;</span>
+  new_sexid[sexid <span class="op">==</span><span class="st"> </span><span class="dv">3</span>] &lt;-<span class="st"> &#39;bi&#39;</span>
+  <span class="kw">return</span>(new_sexid)
+}
+
+all_sex &lt;-<span class="st"> </span>natsal_filt2 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="co"># make new indicator for female, eversam and everhet</span>
+<span class="st">  </span><span class="kw">mutate</span>(
+      <span class="dt">eversam_ind =</span> (eversam <span class="op">==</span><span class="st"> </span><span class="dv">1</span>),
+      <span class="dt">everhet_ind =</span> (everhet <span class="op">==</span><span class="st"> </span><span class="dv">1</span>),
+      <span class="dt">r_sex =</span> <span class="kw">ifelse</span>(rsex <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;m&quot;</span>, <span class="st">&quot;w&quot;</span>),
+      <span class="dt">r_sexid =</span> <span class="kw">recode_sexid</span>(sexid)
+  ) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select</span>(r_sex, r_sexid, eversam_ind, everhet_ind, hetnonew, samnonew, totnewyr, total_wt)</code></pre></div>
+<p>In all, we end up with 6937 observations, which is 97.1% of the original respondents between 18 and 35 years old.</p>
+<p>Next, we define the ‘sexual activity group’, based on whether someone reports having 0-1 (low risk) or 2+ (high risk) new sex partners in the past year.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">def_sex_act_group &lt;-<span class="st"> </span><span class="cf">function</span>(totnewyr){
+  lent &lt;-<span class="st"> </span><span class="kw">length</span>(totnewyr)
+  ret &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>, lent)
+  ret[totnewyr <span class="op">==</span><span class="st"> </span><span class="dv">0</span> <span class="op">|</span><span class="st"> </span>totnewyr <span class="op">==</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> &#39;low&#39;</span>
+  ret[totnewyr <span class="op">&gt;=</span><span class="st"> </span><span class="dv">2</span>] &lt;-<span class="st"> &#39;high&#39;</span>
+  <span class="kw">return</span>(ret)
+}
+
+all_sex<span class="op">$</span>r_sexact &lt;-<span class="st"> </span><span class="kw">def_sex_act_group</span>(all_sex<span class="op">$</span>totnewyr)</code></pre></div>
+<p>These are the first few rows of the final cleaned data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">format_table</span>(<span class="kw">head</span>(all_sex))</code></pre></div>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+r_sex
+</th>
+<th style="text-align:left;">
+r_sexid
+</th>
+<th style="text-align:left;">
+eversam_ind
+</th>
+<th style="text-align:left;">
+everhet_ind
+</th>
+<th style="text-align:right;">
+hetnonew
+</th>
+<th style="text-align:right;">
+samnonew
+</th>
+<th style="text-align:right;">
+totnewyr
+</th>
+<th style="text-align:right;">
+total_wt
+</th>
+<th style="text-align:left;">
+r_sexact
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:left;">
+het
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.461
+</td>
+<td style="text-align:left;">
+low
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:left;">
+het
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1.789
+</td>
+<td style="text-align:left;">
+low
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:left;">
+het
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1.382
+</td>
+<td style="text-align:left;">
+low
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+w
+</td>
+<td style="text-align:left;">
+het
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.739
+</td>
+<td style="text-align:left;">
+low
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:left;">
+het
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.993
+</td>
+<td style="text-align:left;">
+high
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m
+</td>
+<td style="text-align:left;">
+het
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.560
+</td>
+<td style="text-align:left;">
+low
+</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="heterosexual-population.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
