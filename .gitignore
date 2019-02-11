@@ -32,3 +32,10 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
+# bookdown files
+_book
+_bookdown_files
+
+# any html files
+*.html
+
