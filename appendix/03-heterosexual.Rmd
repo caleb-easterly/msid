@@ -1,205 +1,15 @@
-# Heterosexual
+# Heterosexual population
 
-
-The goal is to estimate the annual number of new partnerships between each group of people in the model.
-
-In the paper, we use three model populations:
-
-1. Heterosexual population, sexual activity stratification only
-2. Het, gay/lesbian, bi population, sexual activity stratification only
-3. Het, gay/lesbian, bi population, sexual activity and sexID stratification
-
-In the Natsal data, we know the sex, self-reported sexual identity (sexID), and sexual activity group (SA) of the respondents, as well as the sex of the respondents' partners. The main problem is that the respondents don't report (and/or don't know) the sexID or SA of their partner. So, we know the total number of partners that each group has with each sex, but we'll have to distribute these partnerships among sexIDs and SAs.
-
-Because there doesn't seem to be much information on how people mix regarding sexIDs or SAs, we make the proportionate assumption, which amounts to assuming that people have no preference for sexID or SA - they simply choose randomly (uniformly) among what is available to them.
-
-The analysis has three steps:
-
-1. Estimate the number of new partnerships with each sex
-2. Distribute partnerships across sexual identities and sexual activity groups using the proportionality assumption
-3. Balance the resulting distributed partnerships
-
-We carry out the analysis for each model population.
-
-## Data prep
-
-First, we read in the Natsal data and prepare it for analysis. We use the following R packages:
-
-```{r message=FALSE}
-library(dplyr)
-library(reshape2)
-library(ggplot2)
-library(knitr)
-library(kableExtra)
-```
-
-This is a function to pretty-print tables.
-```{r}
-format_table <- function(df) {
-  df %>%
-    knitr::kable(booktabs = TRUE, digits = 3) %>%
-    kableExtra::kable_styling(bootstrap_options = "striped",
-                              latex_options = c("scale_down", "striped"))
-}
-```
-
-## Relevant Variables in Natsal
-
-The following variables in the Natsal data set are relevant to our analysis:
-
-* rsex: respondent's sex
-    - 1 is male
-    - 2 is female
-
-* sexid: sexual identity
-    - 1: heterosexual / straight
-    - 2: gay / lesbian
-    - 3: bisexual
-    - 4: other
-    - 9: not answered
-
-* everhet: ever had a heterosexual sexual partnership
-    - 1 is yes
-    - 0 is no
-    - 9 is "unclassifiable"
-
-* eversam: Ever had a same-sex partnership
-    - 1 is yes
-    - 2 is no
-    - 9: NA
-    - -1: not answered
-
-* hetnonew: total number of new heterosexual partners in the past year
-    - 0: if het1yr=0 | (het1yr=1 & hetnewp=2)
-    - 1: if het1yr=1 & hetnewp=1
-    - 99: not answered if missing
-    - -1: not applicable if het1yr=-1
-
-* samnonew: no. of new hom. sex partners, last year
-    - 0 if sam1yr=0 | (sam1yr=1 & samnewp=2)
-    - 1 if sam1yr=1 & samnewp=1
-    - copy hnonewp if sam1yr>1 & sam1yr<995
-    - 999: not answered if missing
-    - -1: not applicable if sam1yr=-1
-
-* totnewyr: no. of new het. & hom. sex partners, last year
-    - compute hetnonew + samnonew if hetnonew>=0 & hetnonew<999 & samnonew>=0 & samnonew<999
-    - else hetnonew if samnonew=-1 & hetnonew>=0 & hetnonew<999
-    - else samnonew if hetnonew=-1 & samnonew>=0 & samnonew<999
-    - 999: not answered if hetnonew=999 | samnonew=999
-    - -1: not applicable if hetnonew =-1 | samnonew =-1
-
-
-
-## Analysis
-
-Load NATSAL data in R form:
-```{r}
-load("../old/sfceSO/natsal_R_df.rda")
-```
-
-We focus on a higher-risk age group: 20-year-olds to 35-year-olds. 
-```{r}
-MIN_AGE <- 20
-MAX_AGE <- 35
-
-natsal_hr <- filter(natsal_R_df, dage >= MIN_AGE & dage <= MAX_AGE)
-```
-
-Next, we make new indicator variables, recode some variables to make their values more transparent, and select only relevant variables.
-
-We make two other choices:
-
-1. Exclude anyone who doesn't report a sexual identity of heterosexual, gay, or bisexual. A large percentage (over 99%) report one of these three sexual identities.
-```{r}
-natsal_filt <- natsal_hr %>%
-  filter(sexid == 1 | sexid == 2 | sexid == 3)
-nrow(natsal_filt) / nrow(natsal_hr)
-```
-
-2. Remove missing partner data. For `hetnonew`, "99" indicates missingness and "-1" indicates "not applicable". For `samnonew`, "999" indicates missingness and "-1" is not applicable. Again, the missing data is a small proportion of the total (less than 3%).
-```{r}
-natsal_filt2 <- natsal_filt %>%
-  filter(hetnonew < 99 & samnonew < 995 & hetnonew >= 0 & samnonew >= 0)
-nrow(natsal_filt2)/nrow(natsal_filt)
-```
-
-Now, we recode the sexid to allow for easier interpretation.
-
-```{r}
-recode_sexid <- function(sexid){
-  new_sexid <- rep(NA, length(sexid))
-  new_sexid[sexid == 1] <- 'het'
-  new_sexid[sexid == 2] <- 'gay'
-  new_sexid[sexid == 3] <- 'bi'
-  return(new_sexid)
-}
-
-all_sex <- natsal_filt2 %>%
-  # make new indicator for female, eversam and everhet
-  mutate(
-      eversam_ind = (eversam == 1),
-      everhet_ind = (everhet == 1),
-      r_sex = ifelse(rsex == 1, "m", "w"),
-      r_sexid = recode_sexid(sexid)
-  ) %>%
-  select(r_sex, r_sexid, eversam_ind, everhet_ind, hetnonew, samnonew, totnewyr, total_wt)
-```
-
-In all, we end up with `r nrow(all_sex)` observations, which is `r nrow(all_sex)/nrow(natsal_hr)*100`% of the original respondents between `r MIN_AGE` and `r MAX_AGE` years old.
-
-Next, we define the 'sexual activity group', based on whether someone reports having 0-1 (low risk) or 2+ (high risk) new sex partners in the past year. 
-
-```{r}
-def_sex_act_group <- function(totnewyr){
-  lent <- length(totnewyr)
-  ret <- rep(NA, lent)
-  ret[totnewyr >= 0 & totnewyr <= 1] <- 'low'
-  ret[totnewyr >= 2] <- 'high'
-  return(ret)
-}
-
-# def_sex_quant_grp <- function(totnewyr, quantile = 0.85){
-#   # assign high/low in same order as number per year vector
-#   lent <- length(totnewyr)
-#   df <- data.frame(index = 1:lent, totnewyr)
-#   order_df <- df[order(df$totnewyr), ]
-#   
-#   # how many is 85th percentile
-#   cutoff <- ceiling(0.85 * lent)
-#   low <- 1:cutoff
-#   high <- (cutoff + 1):lent
-#   
-#   order_df$sexact <- c(
-#     rep("low", cutoff),
-#     rep("high", (lent - cutoff))
-#   )
-#   
-#   # re-order df by index
-#   reorder_df <- order_df[order(order_df$index), ]
-#   
-#   # return sexact vector
-#   reorder_df$sexact
-# }
-
-all_sex$r_sexact <- def_sex_act_group(all_sex$totnewyr)
-```
-
-These are the first few rows of the final cleaned data:
-```{r asis=TRUE}
-format_table(head(all_sex))
-```
-
-
-
-
-## Heterosexual population
 
 This mixing matrix is for the heterosexual-only model. There are two sexes, one sexID (heterosexual), and two SA groups, so the matrix will be 4 rows by 4 columns. As stated above, the three steps are: estimate, distribute, and balance.
 
-### Estimate the number of new partnerships with each sex
+## Estimate the number of new partnerships with each sex
 
-This is a function that we'll need to use to get the proportion of the population in each group. This is important because we calculate the total number of partnerships supplied by a group as the per-person number of partnerships in a certain group times the proportion of the population in that group. For example, if high-SA women had 2 partnerships per year on average and 25% of the population was high-SA women, then the group of high-SA women would have $2 \times 0.25 = 0.5$ partnerships per year. This number is called `n_partners` in the code below. The reason that we use the proportion, rather than some total number of people, is that the size of the population doesn't matter for the dynamic model. To get the absolute numbers for a population of, say, 100,000 people, we can just multiply the total number of partnerships by 100,000. That is, using the example above, high-SA women would "offer" 50,000 partnerships per year. Also note that the function uses the survey weights, rather than the number of respondents.
+This is a function that we'll need to use to get the proportion of the population in each group. This is important because we calculate the total number of partnerships supplied by a group as the per-person number of partnerships in a certain group times the proportion of the population in that group. 
+
+For example, if high-SA women had 2 partnerships per year on average and 25% of the population was high-SA women, then the group of high-SA women would have $2 \times 0.25 = 0.5$ partnerships per year. This number is called `part_g` in the code below.
+
+The reason that we use the proportion, rather than some total number of people, is that the size of the population doesn't matter for the dynamic model. To get the absolute numbers for a population of, say, 100,000 people, we can just multiply the total number of partnerships by 100,000. That is, using the example above, high-SA women would "offer" 50,000 partnerships per year. Also note that the function uses the survey weights, rather than the number of respondents.
 
 ```{r}
 # the q stands for "query"
@@ -234,9 +44,9 @@ get_proportion(all_sex, q_sex = "m", q_sexact = "low", q_sexid = "het",
 
 They add up to 1, as should be the case.
 
-Now, we calculate the average number of new partners per-person with each sex (`rp_sex`), as well as the total number of new partners supplied by each group (`n_partners`).
+Now, we calculate the average number of new partners per-person with each sex (`rp_sex`), as well as the total number of new partners supplied by each group (`part_g`).
 
-We also calculate the standard deviation of new partners using the function `weighted.sd()`, which is based on a formula from <a href='https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance' target="_blank">Wikipedia</a>, though there probably is a better source):
+We also calculate the standard deviation of new partners using the function `weighted.sd()`, which is based on a formula from <a href='https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance' target="_blank">Wikipedia</a>:
 
 ```{r}
 weighted.sd <- function(x, w){
@@ -253,7 +63,7 @@ calc_reported <- function(df) {
   all_sex %>%
     filter(r_sexid == "het") %>%
     group_by(r_sex, r_sexact, r_sexid) %>%
-    summarise(partners = weighted.mean(hetnonew, w = total_wt),
+    summarise(part_p = weighted.mean(hetnonew, w = total_wt),
               sdpart = weighted.sd(hetnonew, w = total_wt)) %>%
     mutate(rp_sex = ifelse(r_sex == "m", 'w', 'm')) %>%
     rowwise() %>%
@@ -262,7 +72,7 @@ calc_reported <- function(df) {
                                  q_sexact = r_sexact,
                                  q_sexid = "het",
                                  denom_sexid = "het"),
-           n_partners = partners * prop) %>%
+           part_g = part_p * prop) %>%
     ungroup()
 }
 het_sexact_rep <- calc_reported(all_sex)
@@ -273,9 +83,9 @@ So, high activity heterosexual men report an average of about 4 new partners per
 
 Next, let's distribute the partnerships across activity levels.
 
-### Distribute partnerships
+## Distribute partnerships
 
-Since the respondent's don't know their partners' activity levels, we make the proportionality assumption and then estimate the proportion of partnerships supplied to each sex by each activity level.
+Since the respondent's don't know their partners' activity levels (but do know their partners' sex), we make the proportionality assumption and then estimate the proportion of partnerships supplied to each sex by each activity level.
 
 The most general form of this is:
 
@@ -289,16 +99,16 @@ where:
 - $S_{rp}$, $G_{rp}$: the respondent's partners' sex and other demos, respectively
 - $N_{ij}$: the proportion of people with sex $i$ who have other characteristics $j$,
 - $\beta_{ijk}$ is the number of partnerships that people of sex $i$ with other characteristics $j$ reported with sex $k$,
-- and the denominator is the total number of partnerships offered to sex $s$ from all demographic groups (note that, because this is a heterosexual model, the sex is assumed to be the opposite sex - i.e., $i = s'$)
+- the denominator is the total number of partnerships offered to sex $s$ from all demographic groups (note that, because this is a heterosexual model, the sex is assumed to be the opposite sex - i.e., $i$ is fixed at $s'$)
 
-We can do this using dplyr and piping. Basically, for each combination of `r_sex` and `rp_sex`, we take the total number of partnerships 'offered' by each sex and sexual activity group, and divide it by the total number of partnerships offered by that sex. Then, we define `rp_sexid = r_sexid`, so the proportion `prop_of_avail` represents the proportion of partnerships from people of `sex1` available to `sex2` that come from people of `sex1` and SA group `sexact1`.
+To calculate this for each combination of `r_sex` and `rp_sex`, we take the total number of partnerships 'offered' by each sex and sexual activity group, and divide it by the total number of partnerships offered by that sex. Then, we define `rp_sexid = r_sexid`, so the proportion `prop_of_avail` represents the proportion of partnerships from people of `sex1` available to `sex2` that come from people of `sex1` and SA group `sexact1`.
 
 
 ```{r}
 make_offered_df <- function(df) {
   het_sexact_rep %>%
     group_by(r_sex) %>%
-    mutate(prop_of_avail = n_partners / sum(n_partners)) %>%
+    mutate(prop_of_avail = part_g / sum(part_g)) %>%
     select(sex1 = r_sex,
            sexact1 = r_sexact,
            sex2 = rp_sex,
@@ -314,40 +124,42 @@ As an example, the above data shows that men with high sexual actvity account fo
 Let's check this for women by hand:
 
 * Women (as a group) reported a total of $0.147 + 0.078 = 0.225$ partnerships with men in the past year.
-* Out of this 0.225, high activity women reported $0.147/0.225 = 65%$, and low activity women reported $0.078/0.225 = 35%$.
+* Out of this 0.225, high activity women reported $0.147/0.225 = 65$%, and low activity women reported $0.078/0.225 = 35$%.
 * So, if we assume that men do not have a preference for high/low sexual activity women, if they randomly selected a woman as a partner, there's a 65% chance that they would choose a high-SA woman.
 * This is the same number shown in the table above.
 
-Now, we distribute the partnerships across the groups. To do this, we first join the proportion dataframe with the survey dataframe. This join aligns the `prop_of_avail` and `partners` column, so they can be multiplied. Then, we multiply to get the distributed partnerships and define a single variable that describes the two demographic variables (sex and SA group):
+Now, we distribute the partnerships across the groups. To do this, we first join the proportion dataframe with the survey dataframe. This join aligns the `prop_of_avail` and `part_p` column, so they can be multiplied. Then, we multiply to get the distributed partnerships and define a single variable that describes the two demographic variables (sex and SA group):
 
 ```{r}
 distribute_partnerships <- function(report, dist) {
   left_join(report, dist,
                         by = c("rp_sex" = "sex1", "r_sex" = "sex2")) %>%
     rename(rp_sexact = sexact1) %>%
-    mutate(d_partners = partners * prop_of_avail,
+    mutate(d_part_p = part_p * prop_of_avail,
            r_demo = paste(r_sex, r_sexact, sep="_"),
            rp_demo = paste(rp_sex, rp_sexact, sep="_")) %>%
-    select(r_demo, rp_demo, d_partners, prop)
+    select(r_demo, rp_demo, d_part_p, prop)
 }
 partner_dist_het_sexact <- distribute_partnerships(het_sexact_rep, het_sexact_offered_dist)
 format_table(partner_dist_het_sexact)
 ```
 
-So, men with high sexual activity reported `r format(het_sexact_rep$partners[1], digits = 3)` partners. In the distributed table, these ~4 partners are distributed across women with high sexual activity and women with low sexual activity. Note that the proportions are roughly 75% and 25%, which is the proportion of partnerships that high SA women and low SA women offer to men, respectively (as calculated above).
+So, men with high sexual activity reported `r format(het_sexact_rep$part_p[1], digits = 3)` partners. In the distributed table, these ~4 partners are distributed across women with high sexual activity and women with low sexual activity. Note that the proportions are roughly 65% and 35%, which is the proportion of partnerships that high SA women and low SA women offer to men, respectively (as calculated above).
 
 ```{r}
 men_high_sa <- partner_dist_het_sexact %>%
   filter(r_demo == "m_high")
 format_table(men_high_sa)
-sum(men_high_sa$d_partners)
+sum(men_high_sa$d_part_p)
 ```
+
+## Balancing
 
 Notice that the partnerships are unbalanced. That is, if we calculate the total number of partnerships offered by each group, high SA men report a different number of partnerships with high SA women than high SA women do with high SA men. 
 
 ```{r}
 partner_dist_het_sexact %>%
-  mutate(total_group_pships = d_partners * prop) %>%
+  mutate(total_group_pships = d_part_p * prop) %>%
   filter((r_demo == "m_high" & rp_demo == "w_high") | (rp_demo == "m_high" & r_demo == "w_high")) %>%
   select(r_demo, rp_demo, total_group_pships) %>%
   format_table()
@@ -355,13 +167,25 @@ partner_dist_het_sexact %>%
 
 This could be do to random error, under- or over-reporting, or a non-representative survey sample. In any case, we have to ensure that all the partnerships are "realized" - i.e., that the same number are reported by each group participating in the partnership.
 
-### Balancing
+To remedy this, we follow Garnett et al., 1994, who define an imbalance $B$ and then correct the partnerships by multiplying the unbalanced partnering rates by powers of $B$. 
 
-We don't necessarily have information about whether the `m_high` or `w_high` number is more reliable, so we just average the two numbers (for each pair of groups). This is the `theta <- 0.5` variable below.
+Here, since we have distributed the partnerships across sexual activity groups, we have $\beta_{sgs'g'}$ as the number of per-person partnerships that group $sg$ has with group $s'g'$. The imbalance from the perspective of $sg$ is $B_{sg}$:
 
-TODO: add explanation via Garnett.
+$$
+B_{sg} = \frac{N_{sg} \beta_{sgs'g'}}{N_{s'g'} \beta_{s'g'sg}}
+$$
 
-To do this, we join the distributed data frame with itself, reversing the demographic groups. The suffixes show the origin of the numbers - `d_partners.r` is the number of partners that the `r` groups report with `rp`, and `d_partners.rp` is the opposite.
+Then, the corrected PRs are defined as:
+
+\begin{aligned}
+\beta_{sgs'g'}^* &= \beta_{sgs'g'} / \sqrt{B_{sg}} \\
+\beta_{s'g'sg}^* &= \beta_{s'g'sg} \times \sqrt{B_{sg}} \\
+
+\end{aligned}
+
+While Garnett, et al., 1994 uses different powers of $B$, we don't necessarily have information about whether the `m_high` or `w_high` number is more reliable (and the interpretation of the power of $B$ becomes increasingly difficult with multiple sexIDs).
+
+To do this in the code, we join the distributed data frame with itself, reversing the demographic groups. The suffixes show the origin of the numbers - `d_part_p.r` is the number of partners that the `r` groups report with `rp`, and `d_part_p.rp` is the opposite.
 
 ```{r}
 make_bidirectional <- function(df) {
@@ -377,20 +201,20 @@ natsal_het_bidi %>%
   format_table()
 ```
 
-We set `theta` to 0.5 - note that 0.5 is the only value of `theta` that actually "works" with this method. Otherwise, `corrected_r` and `corrected_rp` do not equal each other when `r_demo` and `rp_demo` are exchanged. But that isn't relevant for this analysis, because `theta = 0.5`.
+We set `theta` to 0.5 - note that 0.5 is the only value of `theta` that actually "works" with this method. Otherwise, `corrected_r` and `corrected_rp` do not equal each other when `r_demo` and `rp_demo` are exchanged.
 
 ```{r}
 balance_het <- function(df, theta = 0.5) {
   df %>%
-    mutate(np_r = d_partners.r * prop.r,
-           np_rp = d_partners.rp * prop.rp) %>%
+    mutate(np_r = d_part_p.r * prop.r,
+           np_rp = d_part_p.rp * prop.rp) %>%
     mutate(imbalance = np_r / np_rp,
-           corrected_r = d_partners.r / imbalance^(1 - theta),
-           corrected_rp = d_partners.rp * imbalance^theta,
+           corrected_r = d_part_p.r / imbalance^(1 - theta),
+           corrected_rp = d_part_p.rp * imbalance^theta,
            cnr = corrected_r * prop.r,
            cnrp = corrected_rp * prop.rp) %>%
-    select(r_demo, rp_demo, prop.r, prop.rp,
-           d_partners.r, corrected_r, d_partners.rp, corrected_rp,
+    select(r_demo, rp_demo, prop.r, 
+           d_part_p.r, corrected_r,
            cnr, cnrp)
 }
 
@@ -410,7 +234,7 @@ Also, we can take a single pair of groups and double check that the answer makes
 
 The imbalance (with men in the numerator) is then $0.1872 / 0.1125 = 1.664$. The corrected partnerships for men is $2.6 / 1.664 ^ {0.5} = 2.01$, and for women the corrected partnerships are $2.5 \times 1.664 ^ {0.5} = 3.2$. Now, we have $2.01 \times 0.072 = 0.14$, and $3.2 \times 0.045 = 0.14$, so the partnerships are balanced.
 
-### Compare
+## Compare
 
 Also, we can compare the original total number of partnerships with the balanced total number of partnerships, by group.
 ```{r}
@@ -422,7 +246,7 @@ compare_bal_orig <- function(bal, rep) {
 
   b_compare <- rep %>%
     mutate(r_demo = paste(r_sex, r_sexact, sep = "_")) %>%
-    select(r_demo, orig_p_pc = partners) %>%
+    select(r_demo, orig_p_pc = part_p) %>%
     left_join(b_by_group, by = "r_demo")
 
   return(b_compare)
@@ -440,16 +264,34 @@ b_natsal_het_clean <- b_natsal_het_bidi %>%
   select(r_demo, rp_demo, prop = prop.r, corrected_r)
 ```
 
-### Plot Base Case
+Also, remember that, in this model, we are assuming that people of the same sex have no sexual interaction.
+We make a dataframe of 0s to append to the calculated partnership numbers.
 
 ```{r}
 # for plotting, I want to emphasize the zeros between same-sex
 na_demos <- mutate(b_natsal_het_clean,
                    r_demo = r_demo,
                    rp_demo = rev(rp_demo),
-                   corrected_r = NA)
+                   corrected_r = 0)
+head(na_demos)
+```
 
+
+We combine the data frames:
+
+```{r}
+library(usethis)
+contact_het_base <- rbind(b_natsal_het_clean, na_demos)
+use_data(contact_het_base, overwrite = TRUE)
+```
+
+## Plot Base Case
+
+```{r}
 # plot with nas
+contact_het_plot <- contact_het_base
+contact_het_plot[contact_het_plot == 0] <- NA
+
 # define as a function, because it's repeated
 library(ggplot2)
 plot_mixing_matrix <- function(df) {
@@ -461,29 +303,31 @@ plot_mixing_matrix <- function(df) {
                          high = "black",
                          midpoint = 1.5,
                          na.value = "white",
-                         breaks = seq(0, 6)) +
+                         breaks = seq(0, 100)) +
     labs(x = "Group of Partner 1",
          y = "Group of Partner 2") +
     theme_minimal(base_size = 14) + coord_fixed() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
 }
 
-plot_mixing_matrix(rbind(b_natsal_het_clean, na_demos))
+plot_mixing_matrix(contact_het_plot)
 ```
 
-## PSA
+## Calibration
 
 The average partnering rate is known with some uncertainty. We already calculated the standard deviation of the responses:
 
 ```{r}
 het_sexact_rep %>%
-  select(r_sex, r_sexact, partners, sdpart) %>%
+  select(r_sex, r_sexact, part_p, sdpart) %>%
   format_table()
 ```
 
-When we do uncertainty analysis on the model results, we also want to include this uncertainty. To do so, we define gamma distributions for each demographic group using the method of moments, which means we match the mean and standard deviation. Then, to obtain $N$ samples, we independently sample from the gammas to get new mean NPRs. Then, we distribute the partnerships and balance them, which form the data we put into the model.
+To ensure that the steady-state model prevalence matches observed prevalence, we calibrate the model to published prevalence estimates. This includes epidemiological parameters and sexual behavior parameters.
 
-### Define Gamma Distributions
+For the SPRs, we define gamma distributions for each demographic group using the method of moments, which means we match the mean and standard deviation. These distributions are then used within the Bayesian calibration procedure. 
+
+## Define Gamma Distributions
 
 We use this function to calculate Gamma distributions using the method of moments:
 
@@ -507,74 +351,99 @@ gamma_params <- function(mu, sigma, scale = FALSE){
 We do it for each demo group:
 
 ```{r}
-gparms <- lapply(1:4, function(i) gamma_params(het_sexact_rep$partners[i], het_sexact_rep$sdpart[i]))
+gparms <- lapply(1:4, function(i) gamma_params(het_sexact_rep$part_p[i], het_sexact_rep$sdpart[i]))
 ```
 
-#### Sample From Gamma and carry out 3-step process
-
-Function to return a vector of average partering rates.
-
+Let's look at the prior distributions:
 ```{r}
-sample_gams <- function(gparms) {
-  c <- sapply(1:4, function(i) rgamma(1, shape = gparms[[i]]$shape, rate = gparms[[i]]$rate))
-}
-```
-
-Function to replace in reported data frame.
-
-```{r}
-replace_pr <- function(reported, new_pr) {
-  reported$partners <- new_pr
-  return(reported)
-}
-```
-
-We define a function that carries out the whole 3-step process, from the reported to balanced partnerships:
-
-```{r}
-from_rep_to_bal <- function(reported) {
-  offered <- make_offered_df(reported)
-  dist <- distribute_partnerships(reported, offered)
-  bidi <- make_bidirectional(dist)
-  balanced <- balance_het(bidi)
-  return(balanced)
-}
+ether <- lapply(gparms, function(p)
+    curve(dgamma(x, shape = p$shape, rate = p$rate), from = 0, to = p$shape / p$rate + 2 * p$shape / p$rate^2))
 ```
 
 
-Now, actually run the samples.
+<!-- ### Sample From Gamma and carry out 3-step process -->
 
-```{r cache=TRUE}
-pr_samples <- function(gparms, reported) {
-  means <- sample_gams(gparms)
-  reprep <- replace_pr(reported, means)
-  bal <- from_rep_to_bal(reprep)
-  bal$corrected_r
-}
+<!-- Function to return a vector of average partering rates. -->
 
-set.seed(101)
-sampled <- t(replicate(100, pr_samples(gparms, het_sexact_rep)))
+<!-- ```{r} -->
+<!-- sample_gams <- function(gparms) { -->
+<!--   c <- sapply(1:4, function(i) rgamma(1, shape = gparms[[i]]$shape, rate = gparms[[i]]$rate)) -->
+<!-- } -->
+<!-- ``` -->
 
-```
+<!-- Function to replace in reported data frame. -->
 
-#### Plot distributions for each group
+<!-- ```{r} -->
+<!-- replace_pr <- function(reported, new_pr) { -->
+<!--   reported$partners <- new_pr -->
+<!--   return(reported) -->
+<!-- } -->
+<!-- ``` -->
 
-```{r}
-p1 <- b_natsal_het_clean$r_demo
-p2 <- b_natsal_het_clean$rp_demo
+<!-- We define a function that carries out the whole 3-step process, from the reported to balanced partnerships: -->
 
-for (i in 1:8){
-  samps <- sampled[, i]
-  hist(samps, main = paste(p1[i], p2[i], sep = " with "), breaks = 50)
-  abline(v = mean(samps), col = "green", lwd = 2)
-}
-```
+<!-- ```{r} -->
+<!-- from_rep_to_bal <- function(reported) { -->
+<!--   offered <- make_offered_df(reported) -->
+<!--   dist <- distribute_partnerships(reported, offered) -->
+<!--   bidi <- make_bidirectional(dist) -->
+<!--   balanced <- balance_het(bidi) -->
+<!--   return(balanced) -->
+<!-- } -->
+<!-- ``` -->
 
-#### Save samples as R object
 
-```{r}
-het_base_case <- b_natsal_het_clean
-colnames(sampled) <- p1
-het_samples <- sampled
-save(het_base_case, het_samples, file = "clean_data/het_pr.rda")
-```
+<!-- Now, actually run the samples. -->
+
+<!-- ```{r} -->
+<!-- pr_samples <- function(gparms, reported) { -->
+<!--   means <- sample_gams(gparms) -->
+<!--   reprep <- replace_pr(reported, means) -->
+<!--   bal <- from_rep_to_bal(reprep) -->
+<!--   bal$corrected_r -->
+<!-- } -->
+
+<!-- set.seed(101) -->
+<!-- sampled <- t(replicate(1000, pr_samples(gparms, het_sexact_rep))) -->
+
+<!-- ``` -->
+
+<!-- ### Plot distributions for each group -->
+
+<!-- ```{r} -->
+<!-- p1 <- b_natsal_het_clean$r_demo -->
+<!-- p2 <- b_natsal_het_clean$rp_demo -->
+
+<!-- dist_df <- data.frame('grps' = paste0(p1, "/", p2)) -->
+<!-- descript_mat <- matrix(0, nrow = 8, ncol = 5) -->
+
+<!-- for (i in 1:8){ -->
+<!--   samps <- sampled[, i] -->
+<!--   hist(samps, main = dist_df$grps[i], breaks = 100) -->
+<!--   mn <- mean(samps) -->
+<!--   sd <- sd(samps) -->
+<!--   descript <- quantile(samps) -->
+<!--   abline(v = mn, col = "green", lwd = 2) -->
+<!--   dist_df$mean[i] <- mn -->
+<!--   dist_df$sd[i] <- sd -->
+<!--   descript_mat[i, ] <- descript -->
+<!-- } -->
+<!-- colnames(descript_mat) <- c('min', 'q25', 'med', 'q75', 'max') -->
+<!-- dist_df <- cbind(dist_df, descript_mat) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- dist_df %>% -->
+<!--     kable(digits = 3) %>% -->
+<!--     kable_styling() -->
+<!-- ``` -->
+
+<!-- ### Use data in msid package -->
+
+<!-- ```{r} -->
+<!-- het_base_case <- b_natsal_het_clean -->
+<!-- colnames(sampled) <- p1 -->
+<!-- contact_het_samples <- sampled -->
+<!-- library(usethis) -->
+<!-- use_data(contact_het_samples, overwrite = TRUE) -->
+<!-- ``` -->
