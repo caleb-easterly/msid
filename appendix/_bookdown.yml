@@ -6,5 +6,6 @@ site: "bookdown::bookdown_site"
 output:
   bookdown::gitbook: default
 documentclass: book
-rmd_files: ["index.Rmd", "02-data_prep.Rmd", "03-heterosexual.Rmd"]
+rmd_files: ["index.Rmd", "02-data_prep.Rmd",
+    "03-heterosexual.Rmd", "04-msid.Rmd", "06-avg.Rmd"]
 ---

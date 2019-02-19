@@ -1,6 +1,5 @@
 # Heterosexual population
 
-
 This mixing matrix is for the heterosexual-only model. There are two sexes, one sexID (heterosexual), and two SA groups, so the matrix will be 4 rows by 4 columns. As stated above, the three steps are: estimate, distribute, and balance.
 
 ## Estimate the number of new partnerships with each sex
@@ -106,7 +105,7 @@ To calculate this for each combination of `r_sex` and `rp_sex`, we take the tota
 
 ```{r}
 make_offered_df <- function(df) {
-  het_sexact_rep %>%
+  df %>%
     group_by(r_sex) %>%
     mutate(prop_of_avail = part_g / sum(part_g)) %>%
     select(sex1 = r_sex,
@@ -356,8 +355,10 @@ gparms <- lapply(1:4, function(i) gamma_params(het_sexact_rep$part_p[i], het_sex
 
 Let's look at the prior distributions:
 ```{r}
+par(mfrow = c(2, 2))
 ether <- lapply(gparms, function(p)
-    curve(dgamma(x, shape = p$shape, rate = p$rate), from = 0, to = p$shape / p$rate + 2 * p$shape / p$rate^2))
+    curve(dgamma(x, shape = p$shape, rate = p$rate), from = 0, to = p$shape / p$rate + 2 * p$shape / p$rate^2,
+    ylab = "Density"))
 ```
 
 

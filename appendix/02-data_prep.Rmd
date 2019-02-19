@@ -30,6 +30,7 @@ library(reshape2)
 library(ggplot2)
 library(knitr)
 library(kableExtra)
+library(stringr)
 ```
 
 This is a function to pretty-print tables.
@@ -100,7 +101,7 @@ load("../../old/sfceSO/natsal_R_df.rda")
 We focus on a higher-risk age group: 18-year-olds to 35-year-olds. 
 ```{r}
 MIN_AGE <- 18
-MAX_AGE <- 35
+MAX_AGE <- 34
 
 natsal_hr <- filter(natsal_R_df, dage >= MIN_AGE & dage <= MAX_AGE)
 ```

@@ -1,11 +1,11 @@
-# MSID
+# Average behavior: no sexiD stratification
 
 ## Estimate
 
 ```{r}
 library(reshape2)
-msid_est <- all_sex %>%
-    group_by(r_sex, r_sexid, r_sexact) %>%
+avg_est <- all_sex %>%
+    group_by(r_sex, r_sexact) %>%
     summarize(het = weighted.mean(hetnonew, w = total_wt),
               hetSD = weighted.sd(hetnonew, w = total_wt),
               sam = weighted.mean(samnonew, w = total_wt),
@@ -14,44 +14,42 @@ msid_est <- all_sex %>%
            msd = ifelse(r_sex == "m", samSD, hetSD),
            w = ifelse(r_sex == "w", sam, het),
            wsd = ifelse(r_sex == "w", samSD, hetSD)) %>%
-    select(r_sex, r_sexid, r_sexact, m, msd, w, wsd)
+    select(r_sex, r_sexact, m, msd, w, wsd)
 
-msid_rep <- msid_est %>%
-    select(r_sex, r_sexid, r_sexact, m, w) %>%
-    melt(id.vars = c('r_sex', 'r_sexid', 'r_sexact'),
+avg_rep <- avg_est %>%
+    select(r_sex, r_sexact, m, w) %>%
+    melt(id.vars = c('r_sex', 'r_sexact'),
          variable.name = "rp_sex",
          value.name = "partners") %>%
     # add proportions
     rowwise() %>%
-    mutate(prop = get_proportion(all_sex, q_sex = r_sex,
-                                q_sexid = r_sexid, q_sexact = r_sexact),
-           n_partners = prop * partners) %>%
+    mutate(prop = get_proportion(all_sex, q_sex = r_sex, q_sexact = r_sexact),
+           g_part = prop * partners) %>%
     ungroup() %>%
-  arrange(r_sex, r_sexid, r_sexact)
-format_table(msid_rep)
+  arrange(r_sex, r_sexact)
+format_table(avg_rep)
 ```
 
 
 ```{r}
-msid_offered <- msid_rep %>%
+avg_offered <- avg_rep %>%
   group_by(rp_sex, r_sex) %>%
   # define prop_to_r as the the proportion of all partners offered to r that come from rp
-  mutate(prop_1to2 = n_partners / sum(n_partners)) %>%
+  mutate(prop_1to2 = g_part / sum(g_part)) %>%
   select(sex1 = r_sex,
-         sexid1 = r_sexid,
          sexact1 = r_sexact,
          sex2 = rp_sex,
          prop_1to2) %>%
-  arrange(sex1, sexid1, sexact1, sex2)
-format_table(msid_offered)
+  arrange(sex1, sexact1, sex2)
+format_table(avg_offered)
 ```
 
 Note that most of the partners that are 'offered' from men to men from men come from high sexual-activity gay men, and the proportion of all partnerships offered from men to men sums to 1.
 
 ```{r}
-fmtm <- msid_offered %>%
+fmtm <- avg_offered %>%
   filter(sex1 == "m" & sex2 == "m") %>%
-  mutate(rp_demo = paste(sex1, sexid1, sexact1, sep="_"))
+  mutate(rp_demo = paste(sex1, sexact1, sep="_"))
 ggplot(fmtm) +
   geom_bar(aes(x = rp_demo, y = prop_1to2), stat = "identity") +
   ylab("Proportion of partnerships offered to men from men") +
@@ -63,24 +61,24 @@ Make partner distribution
 ## Distribute
 
 ```{r}
-make_partner_dist_msid <- function(report, dist){
+make_partner_dist_avg <- function(report, dist){
 left_join(report, dist,
           by = c("rp_sex" = "sex1", "r_sex" = "sex2")) %>%
         mutate(d_part_p = partners * prop_1to2) %>%
-        mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep="_"),
-               rp_demo = paste(rp_sex, sexid1, sexact1, sep="_")) %>%
+        mutate(r_demo = paste(r_sex, r_sexact, sep="_"),
+               rp_demo = paste(rp_sex, sexact1, sep="_")) %>%
   select(r_demo, rp_demo, prop, d_part_p)
 }
 
-msid_partner_dist <- make_partner_dist_msid(msid_rep, msid_offered)
+avg_partner_dist <- make_partner_dist_avg(avg_rep, avg_offered)
 
-format_table(head(msid_partner_dist, n = 10))
+format_table(head(avg_partner_dist, n = 10))
 ```
 
 Look at bi men
 ```{r}
-men_bi_high <- msid_partner_dist %>%
-  filter(r_demo == "m_bi_high" & str_detect(rp_demo, "w_"))
+men_bi_high <- avg_partner_dist %>%
+  filter(r_demo == "m_high" & str_detect(rp_demo, "w_"))
 format_table(men_bi_high)
 sum(men_bi_high$d_part_p)
 ```
@@ -89,41 +87,29 @@ sum(men_bi_high$d_part_p)
 ## Balance
 
 ```{r}
-msid_bidi <- make_bidirectional(msid_partner_dist)
-msid_bal <- balance_het(msid_bidi)
-format_table(head(msid_bal))
+avg_bidi <- make_bidirectional(avg_partner_dist)
+avg_bal <- balance_het(avg_bidi)
+format_table(avg_bal)
 
-library(stringr)
-ggplot(rbind(msid_bal)) +
-    geom_tile(aes(x = r_demo, y = rp_demo, fill=corrected_r), color="black", size = 0.2) +
-    scale_fill_gradient2(name="Annual Number\nof New Partnerships",
-                         low = "white",
-                         mid = "blue2",
-                         high = "black",
-                         midpoint = 3,
-                         na.value = "white") +
-    labs(x = "Group of Partner 1",
-         y = "Group of Partner 2") +
-    theme_minimal(base_size = 14) + coord_fixed() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
-# ggsave("plots/msid_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
+plot_mixing_matrix(avg_bal)
+# ggsave("plots/avg_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
 ```
 
 Check that this worked:
 
 ```{r}
-all(with(msid_bal, abs(cnr - cnrp) < .Machine$double.eps), na.rm = TRUE)
+all(with(avg_bal, abs(cnr - cnrp) < .Machine$double.eps), na.rm = TRUE)
 ```
 
 ### Compare
 ```{r}
-sexid_nos_by_grp <- msid_bal %>%
+sexid_nos_by_grp <- avg_bal %>%
   mutate(rp_sex = str_split(rp_demo, "_", simplify = TRUE)[, 1]) %>%
   group_by(r_demo, rp_sex) %>%
   summarize(bal_p_pc = sum(corrected_r, na.rm = TRUE))
 
-sexid_nos_compare <- msid_rep %>%
-  mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_")) %>%
+sexid_nos_compare <- avg_rep %>%
+  mutate(r_demo = paste(r_sex, r_sexact, sep = "_")) %>%
   select(r_demo, rp_sex, orig_p_pc = partners) %>%
   left_join(sexid_nos_by_grp, by = c("r_demo", "rp_sex"))
 format_table(sexid_nos_compare)
@@ -136,15 +122,15 @@ Calculate gamma params
 ### Partnerships with Men
 ```{r fig.height = 10}
 # men
-msid_m_gam_params <- lapply(1:12,
+avg_m_gam_params <- lapply(1:4,
                           function(i) {
-                              p <- gamma_params(msid_est$m[i],
-                                           msid_est$msd[i])
-                              p$name <- paste0(with(msid_est, paste(r_sex[i], r_sexid[i], r_sexact[i], sep = "_")))
+                              p <- gamma_params(avg_est$m[i],
+                                                avg_est$msd[i])
+                              p$name <- paste0(with(avg_est, paste(r_sex[i], r_sexact[i], sep = "_")))
                               return(p)
-                              })
-par(mfrow = c(4, 3))
-devnull <- lapply(msid_m_gam_params,
+                          })
+par(mfrow = c(2, 2))
+devnull <- lapply(avg_m_gam_params,
        function(p) {
            if (is.nan(p$shape)) {
                return(NULL)
@@ -160,15 +146,15 @@ devnull <- lapply(msid_m_gam_params,
 
 ### Partnerships with Women
 ```{r fig.height = 10}
-msid_w_gam_params <- lapply(1:12,
+avg_w_gam_params <- lapply(1:4,
                           function(i) {
-                              p <- gamma_params(msid_est$w[i],
-                                           msid_est$wsd[i])
-                              p$name <- paste0(with(msid_est, paste(r_sex[i], r_sexid[i], r_sexact[i], sep = "_")))
+                              p <- gamma_params(avg_est$w[i],
+                                                avg_est$wsd[i])
+                              p$name <- paste0(with(avg_est, paste(r_sex[i], r_sexact[i], sep = "_")))
                               return(p)
-                              })
-par(mfrow = c(4, 3))
-devnull <- lapply(msid_w_gam_params,
+                          })
+par(mfrow = c(2, 2))
+devnull <- lapply(avg_w_gam_params,
        function(p) {
            if (is.nan(p$shape)) {
                return(NULL)
