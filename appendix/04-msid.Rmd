@@ -64,12 +64,13 @@ Make partner distribution
 
 ```{r}
 make_partner_dist_msid <- function(report, dist){
-left_join(report, dist,
+    left_join(report, dist,
           by = c("rp_sex" = "sex1", "r_sex" = "sex2")) %>%
         mutate(d_part_p = partners * prop_1to2) %>%
         mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep="_"),
                rp_demo = paste(rp_sex, sexid1, sexact1, sep="_")) %>%
-  select(r_demo, rp_demo, prop, d_part_p)
+  select(r_demo, r_sex, r_sexid, r_sexact,
+         rp_demo, rp_sex, rp_sexid = sexid1, rp_sexact = sexact1, prop, d_part_p)
 }
 
 msid_partner_dist <- make_partner_dist_msid(msid_rep, msid_offered)
@@ -90,11 +91,11 @@ sum(men_bi_high$d_part_p)
 
 ```{r}
 msid_bidi <- make_bidirectional(msid_partner_dist)
-msid_bal <- balance_het(msid_bidi)
-format_table(head(msid_bal))
+contact_msid_base <- balance_het(msid_bidi)
+format_table(head(contact_msid_base))
 
 library(stringr)
-ggplot(rbind(msid_bal)) +
+ggplot(rbind(contact_msid_base)) +
     geom_tile(aes(x = r_demo, y = rp_demo, fill=corrected_r), color="black", size = 0.2) +
     scale_fill_gradient2(name="Annual Number\nof New Partnerships",
                          low = "white",
@@ -106,18 +107,21 @@ ggplot(rbind(msid_bal)) +
          y = "Group of Partner 2") +
     theme_minimal(base_size = 14) + coord_fixed() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
-# ggsave("plots/msid_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
+
+# save plot and data
+ggsave("plots/msid_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
+usethis::use_data(contact_msid_base, overwrite = TRUE)
 ```
 
 Check that this worked:
 
 ```{r}
-all(with(msid_bal, abs(cnr - cnrp) < .Machine$double.eps), na.rm = TRUE)
+all(with(contact_msid_base, abs(cnr - cnrp) < .Machine$double.eps), na.rm = TRUE)
 ```
 
 ### Compare
 ```{r}
-sexid_nos_by_grp <- msid_bal %>%
+sexid_nos_by_grp <- contact_msid_base %>%
   mutate(rp_sex = str_split(rp_demo, "_", simplify = TRUE)[, 1]) %>%
   group_by(r_demo, rp_sex) %>%
   summarize(bal_p_pc = sum(corrected_r, na.rm = TRUE))

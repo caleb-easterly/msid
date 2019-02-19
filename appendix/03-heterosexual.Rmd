@@ -110,6 +110,7 @@ make_offered_df <- function(df) {
     mutate(prop_of_avail = part_g / sum(part_g)) %>%
     select(sex1 = r_sex,
            sexact1 = r_sexact,
+           sexid1 = r_sexid,
            sex2 = rp_sex,
            prop_of_avail) %>%
     ungroup()
@@ -129,15 +130,16 @@ Let's check this for women by hand:
 
 Now, we distribute the partnerships across the groups. To do this, we first join the proportion dataframe with the survey dataframe. This join aligns the `prop_of_avail` and `part_p` column, so they can be multiplied. Then, we multiply to get the distributed partnerships and define a single variable that describes the two demographic variables (sex and SA group):
 
-```{r}
+```{r dist-het}
 distribute_partnerships <- function(report, dist) {
   left_join(report, dist,
                         by = c("rp_sex" = "sex1", "r_sex" = "sex2")) %>%
-    rename(rp_sexact = sexact1) %>%
+    rename(rp_sexact = sexact1,
+           rp_sexid = sexid1) %>%
     mutate(d_part_p = part_p * prop_of_avail,
-           r_demo = paste(r_sex, r_sexact, sep="_"),
-           rp_demo = paste(rp_sex, rp_sexact, sep="_")) %>%
-    select(r_demo, rp_demo, d_part_p, prop)
+           r_demo = paste(r_sex, r_sexid, r_sexact, sep="_"),
+           rp_demo = paste(rp_sex, rp_sexid, rp_sexact, sep="_")) %>%
+    select(r_demo, r_sex, r_sexact, r_sexid, rp_demo, rp_sex, rp_sexid, rp_sexact, d_part_p, prop)
 }
 partner_dist_het_sexact <- distribute_partnerships(het_sexact_rep, het_sexact_offered_dist)
 format_table(partner_dist_het_sexact)
@@ -147,7 +149,7 @@ So, men with high sexual activity reported `r format(het_sexact_rep$part_p[1], d
 
 ```{r}
 men_high_sa <- partner_dist_het_sexact %>%
-  filter(r_demo == "m_high")
+  filter(r_demo == "m_het_high")
 format_table(men_high_sa)
 sum(men_high_sa$d_part_p)
 ```
@@ -159,7 +161,8 @@ Notice that the partnerships are unbalanced. That is, if we calculate the total 
 ```{r}
 partner_dist_het_sexact %>%
   mutate(total_group_pships = d_part_p * prop) %>%
-  filter((r_demo == "m_high" & rp_demo == "w_high") | (rp_demo == "m_high" & r_demo == "w_high")) %>%
+  filter((r_demo == "m_het_high" & rp_demo == "w_het_high") |
+             (rp_demo == "m_het_high" & r_demo == "w_het_high")) %>%
   select(r_demo, rp_demo, total_group_pships) %>%
   format_table()
 ```
@@ -186,7 +189,7 @@ While Garnett, et al., 1994 uses different powers of $B$, we don't necessarily h
 
 To do this in the code, we join the distributed data frame with itself, reversing the demographic groups. The suffixes show the origin of the numbers - `d_part_p.r` is the number of partners that the `r` groups report with `rp`, and `d_part_p.rp` is the opposite.
 
-```{r}
+```{r bidi-het}
 make_bidirectional <- function(df) {
   df %>%
     # do a self-join to calculate partners from perspective of rp
@@ -202,7 +205,7 @@ natsal_het_bidi %>%
 
 We set `theta` to 0.5 - note that 0.5 is the only value of `theta` that actually "works" with this method. Otherwise, `corrected_r` and `corrected_rp` do not equal each other when `r_demo` and `rp_demo` are exchanged.
 
-```{r}
+```{r bal-het}
 balance_het <- function(df, theta = 0.5) {
   df %>%
     mutate(np_r = d_part_p.r * prop.r,
@@ -212,7 +215,10 @@ balance_het <- function(df, theta = 0.5) {
            corrected_rp = d_part_p.rp * imbalance^theta,
            cnr = corrected_r * prop.r,
            cnrp = corrected_rp * prop.rp) %>%
-    select(r_demo, rp_demo, prop.r, 
+    select(r_demo,
+           r_sex = r_sex.r, r_sexid = r_sexid.r, r_sexact = r_sexact.r,
+           rp_sex = rp_sex.r, rp_sexid = rp_sexid.r, rp_sexact = rp_sexact.r,
+           rp_demo, prop.r, 
            d_part_p.r, corrected_r,
            cnr, cnrp)
 }
@@ -244,7 +250,7 @@ compare_bal_orig <- function(bal, rep) {
   summarize(bal_p_pc = sum(corrected_r))
 
   b_compare <- rep %>%
-    mutate(r_demo = paste(r_sex, r_sexact, sep = "_")) %>%
+    mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_")) %>%
     select(r_demo, orig_p_pc = part_p) %>%
     left_join(b_by_group, by = "r_demo")
 
@@ -260,7 +266,7 @@ We can see that high-SA women's partnerships increased, while high-SA men's part
 Now, let's go down to the columns we actually need.
 ```{r}
 b_natsal_het_clean <- b_natsal_het_bidi %>%
-  select(r_demo, rp_demo, prop = prop.r, corrected_r)
+  select(r_sex, r_sexid, r_sexact, r_demo, rp_sex, rp_sexid, rp_sexact, rp_demo, prop = prop.r, corrected_r)
 ```
 
 Also, remember that, in this model, we are assuming that people of the same sex have no sexual interaction.
@@ -310,6 +316,10 @@ plot_mixing_matrix <- function(df) {
 }
 
 plot_mixing_matrix(contact_het_plot)
+
+# save plots and data
+ggsave("plots/het_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
+usethis::use_data(contact_het_base, overwrite = TRUE)
 ```
 
 ## Calibration

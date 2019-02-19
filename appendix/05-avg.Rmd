@@ -13,12 +13,13 @@ avg_est <- all_sex %>%
     mutate(m = ifelse(r_sex == "m", sam, het),
            msd = ifelse(r_sex == "m", samSD, hetSD),
            w = ifelse(r_sex == "w", sam, het),
-           wsd = ifelse(r_sex == "w", samSD, hetSD)) %>%
-    select(r_sex, r_sexact, m, msd, w, wsd)
+           wsd = ifelse(r_sex == "w", samSD, hetSD),
+           r_sexid = "all") %>%
+    select(r_sex, r_sexid, r_sexact, m, msd, w, wsd)
 
 avg_rep <- avg_est %>%
-    select(r_sex, r_sexact, m, w) %>%
-    melt(id.vars = c('r_sex', 'r_sexact'),
+    select(r_sex, r_sexid, r_sexact, m, w) %>%
+    melt(id.vars = c('r_sex', 'r_sexid', 'r_sexact'),
          variable.name = "rp_sex",
          value.name = "partners") %>%
     # add proportions
@@ -37,6 +38,7 @@ avg_offered <- avg_rep %>%
   # define prop_to_r as the the proportion of all partners offered to r that come from rp
   mutate(prop_1to2 = g_part / sum(g_part)) %>%
   select(sex1 = r_sex,
+         sexid1 = r_sexid,
          sexact1 = r_sexact,
          sex2 = rp_sex,
          prop_1to2) %>%
@@ -49,7 +51,7 @@ Note that most of the partners that are 'offered' from men to men from men come 
 ```{r}
 fmtm <- avg_offered %>%
   filter(sex1 == "m" & sex2 == "m") %>%
-  mutate(rp_demo = paste(sex1, sexact1, sep="_"))
+  mutate(rp_demo = paste(sex1, sexid1, sexact1, sep="_"))
 ggplot(fmtm) +
   geom_bar(aes(x = rp_demo, y = prop_1to2), stat = "identity") +
   ylab("Proportion of partnerships offered to men from men") +
@@ -61,16 +63,7 @@ Make partner distribution
 ## Distribute
 
 ```{r}
-make_partner_dist_avg <- function(report, dist){
-left_join(report, dist,
-          by = c("rp_sex" = "sex1", "r_sex" = "sex2")) %>%
-        mutate(d_part_p = partners * prop_1to2) %>%
-        mutate(r_demo = paste(r_sex, r_sexact, sep="_"),
-               rp_demo = paste(rp_sex, sexact1, sep="_")) %>%
-  select(r_demo, rp_demo, prop, d_part_p)
-}
-
-avg_partner_dist <- make_partner_dist_avg(avg_rep, avg_offered)
+avg_partner_dist <- make_partner_dist_msid(avg_rep, avg_offered)
 
 format_table(head(avg_partner_dist, n = 10))
 ```
@@ -78,7 +71,7 @@ format_table(head(avg_partner_dist, n = 10))
 Look at bi men
 ```{r}
 men_bi_high <- avg_partner_dist %>%
-  filter(r_demo == "m_high" & str_detect(rp_demo, "w_"))
+  filter(r_demo == "m_all_high" & str_detect(rp_demo, "w_"))
 format_table(men_bi_high)
 sum(men_bi_high$d_part_p)
 ```
@@ -88,22 +81,25 @@ sum(men_bi_high$d_part_p)
 
 ```{r}
 avg_bidi <- make_bidirectional(avg_partner_dist)
-avg_bal <- balance_het(avg_bidi)
-format_table(avg_bal)
+contact_avg_base <- balance_het(avg_bidi)
+format_table(contact_avg_base)
 
-plot_mixing_matrix(avg_bal)
-# ggsave("plots/avg_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
+plot_mixing_matrix(contact_avg_base)
+
+# save plot and data
+ggsave("plots/avg_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
+usethis::use_data(contact_avg_base, overwrite = TRUE)
 ```
 
 Check that this worked:
 
 ```{r}
-all(with(avg_bal, abs(cnr - cnrp) < .Machine$double.eps), na.rm = TRUE)
+all(with(contact_avg_base, abs(cnr - cnrp) < .Machine$double.eps), na.rm = TRUE)
 ```
 
 ### Compare
 ```{r}
-sexid_nos_by_grp <- avg_bal %>%
+sexid_nos_by_grp <- contact_avg_base %>%
   mutate(rp_sex = str_split(rp_demo, "_", simplify = TRUE)[, 1]) %>%
   group_by(r_demo, rp_sex) %>%
   summarize(bal_p_pc = sum(corrected_r, na.rm = TRUE))
