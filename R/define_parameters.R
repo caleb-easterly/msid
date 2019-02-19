@@ -9,7 +9,6 @@ define_parameters <- function(inf_clear_rate_M = 1/2,
                               efficacy = 0.9,
                               entry_exit_rate = 1/14,
                               sexids = c('het', 'msid'),
-                              population_dist = NULL,
                               contact_df = NULL,
                               betaMM = 0.8,
                               betaMW = 0.8,
@@ -34,12 +33,13 @@ define_parameters <- function(inf_clear_rate_M = 1/2,
 
     # define population dist
     # join with parm_indices
-    pdist_df <- left_join(parm_indices, population_dist,
-                           by=c("sex" = "r_sex",
+    pdist_df <- left_join(parm_indices, contact_df,
+                           by = c("sex" = "r_sex",
                                 "sexid" = "r_sexid",
                                 "sexact" = "r_sexact")) %>%
         arrange(parm_uid) %>%
-        select(sex, sexid, sexact, prop)
+        select(sex, sexid, sexact, prop) %>%
+        unique()
     pdist_vector <- pdist_df$prop
 
     # define (arbitrary) initial condition

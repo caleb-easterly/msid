@@ -4,12 +4,10 @@
 \alias{likelihood_generator}
 \title{Used to define a likelihood function either for het or so mixing structures}
 \usage{
-likelihood_generator(so, pop_dist, contact)
+likelihood_generator(so, contact)
 }
 \arguments{
 \item{so}{sex orientation: either "het" or "msid"}
-
-\item{pop_dist}{path to the pop dist table}
 
 \item{contact}{path to the contact table}
 }

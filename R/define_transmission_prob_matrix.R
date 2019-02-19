@@ -1,3 +1,12 @@
+#' define transmission probabilities between sexes
+#'
+#' transmission probabilities are by partnership
+#'
+#' @param betaMM prob. between men
+#' @param betaMW prob. between men and women (assumed to be the same in both directions)
+#' @param betaWW prob. between women
+#' @param parm_indices data frame mapping demographic groups to unique identifiers
+#'
 #' @export
 define_transmission_prob_matrix <- function(betaMM, betaMW, betaWW, parm_indices){
     n_grps <- nrow(parm_indices)

@@ -5,20 +5,20 @@
 \title{Run the comparison for SMDM 2018
 50 female vaccination versus 50 male and female vaccination}
 \usage{
-run_comparison(so, contacts, props, n_samp, n_resamp, n_run_samp)
+run_comparison(so, contacts, n_samp, n_resamp, n_run_samp)
 }
 \arguments{
 \item{so}{either 'het' or 'msid'}
 
 \item{contacts}{path to the contact df}
 
-\item{props}{path to the proportion df}
-
 \item{n_samp}{number of samples at each step in IMIS (\code{B} in \code{IMIS})}
 
 \item{n_resamp}{desired number of posterior samples (\code{B_k} in \code{IMIS()})}
 
 \item{n_run_samp}{samples from \code{<imis_results>$resample}}
+
+\item{props}{path to the proportion df}
 }
 \description{
 Run the comparison for SMDM 2018

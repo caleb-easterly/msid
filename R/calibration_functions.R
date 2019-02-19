@@ -87,11 +87,10 @@ prior <- function(parms){
 #' Used to define a likelihood function either for het or so mixing structures
 #'
 #' @param so sex orientation: either "het" or "msid"
-#' @param pop_dist path to the pop dist table
 #' @param contact path to the contact table
 #' @import parallel
 #' @export
-likelihood_generator <- function(so, pop_dist, contact){
+likelihood_generator <- function(so, contact){
     likelihood <- function(parms) {
         btparms <- backtransform_parms(parms)
         fTrue <- female_prevalence_target()
@@ -99,7 +98,7 @@ likelihood_generator <- function(so, pop_dist, contact){
         cl <- makeForkCluster(detectCores())
         like <- parSapply(cl, 1:nrow(btparms), function(i) {
             # run model
-            f_mod_prev <- run_model_with_btparms(i, btparms, so, pop_dist, contact)
+            f_mod_prev <- run_model_with_btparms(i, btparms, so, contact)
 
             # group prevalence to gender
             prev_grpd <- group_prevalence_to_gender(f_mod_prev)
@@ -119,9 +118,9 @@ likelihood_generator <- function(so, pop_dist, contact){
 #' Called from the likelihood function.
 #'
 #' @export
-run_model_with_btparms <- function(i, btparms, so, pop_dist, contact){
+run_model_with_btparms <- function(i, btparms, so, contact){
     # define one set of parameters
-    parms <- define_calib_parms(i, btparms, so, pop_dist, contact)
+    parms <- define_calib_parms(i, btparms, so, contact)
     # estimate prevalence under no-vaccine conditions
     mod_prev <- run_to_steady(parms, vaccination = parms$structural$vacc0)
     # calculate prevalence, given
@@ -133,7 +132,7 @@ run_model_with_btparms <- function(i, btparms, so, pop_dist, contact){
 
 #' take back-transformed calib results and pass to define_parms
 #' @export
-define_calib_parms <- function(i, btparms, so, pop_dist, contact){
+define_calib_parms <- function(i, btparms, so, contact){
     ith_set <- btparms[i, ]
     parms <- define_parameters(betaMM = ith_set["betaMM"],
                                betaMW = ith_set["betaMF"],
@@ -143,7 +142,6 @@ define_calib_parms <- function(i, btparms, so, pop_dist, contact){
                                nat_imm_wane_rate_M = ith_set["nat_imm_wane_rate_M"],
                                nat_imm_wane_rate_W = ith_set["nat_imm_wane_rate_F"],
                                sexids = so,
-                               population_dist = pop_dist,
                                contact_df = contact)
     return(parms)
 }

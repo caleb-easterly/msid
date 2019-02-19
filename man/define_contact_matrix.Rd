@@ -2,7 +2,7 @@
 % Please edit documentation in R/define_contact_matrix.R
 \name{define_contact_matrix}
 \alias{define_contact_matrix}
-\title{todo: write test}
+\title{define partnering rates between demographic groups}
 \usage{
 define_contact_matrix(contact_df, parm_indices)
 }
@@ -12,5 +12,5 @@ define_contact_matrix(contact_df, parm_indices)
 \item{parm_indices}{data.frame with the mapping of demographic groups to unique identifiers}
 }
 \description{
-todo: write test
+define partnering rates between demographic groups
 }

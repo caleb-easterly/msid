@@ -1,4 +1,4 @@
-#' todo: write test
+#' define partnering rates between demographic groups
 #'
 #' @param contact_df data.frame with partnering rates in the \code{corrected_r} column
 #' @param parm_indices data.frame with the mapping of demographic groups to unique identifiers

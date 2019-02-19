@@ -18,14 +18,11 @@ define_vaccination <- function(parms, m_vacc, w_vacc){
 #' @importFrom IMIS IMIS
 #' @importFrom mvtnorm rmvnorm dmvnorm
 #' @export
-run_comparison <- function(so, contacts, props, n_samp, n_resamp, n_run_samp){
-    contacts <- read_contact_matrix(contacts)
-    props <- read_population_dist(props)
-    parms <- define_parameters(contact_df = contacts, sexids = so,
-                               population_dist = props)
+run_comparison <- function(so, contacts, n_samp, n_resamp, n_run_samp){
+    parms <- define_parameters(contact_df = contacts, sexids = so)
 
     ### calibrate
-    likelihood <- likelihood_generator(so = so, pop_dist = props, contact = contacts)
+    likelihood <- likelihood_generator(so = so, contact = contacts)
 
     environment(IMIS) <- environment() # this helps IMIS() run...for some reason
     calib <- IMIS(n_samp, n_resamp)
@@ -44,7 +41,7 @@ run_comparison <- function(so, contacts, props, n_samp, n_resamp, n_run_samp){
         ## calculate prevalence (to compare to targets)
         # j selects the set of parameters
         prev <- run_model_with_btparms(i = j, btparms = calib_parms, so = so,
-                                       pop_dist = props, contact = contacts)
+                                       contact = contacts)
 
         # run is used in group_by() to get variation
         # used i because it's guaranteed to be unique
@@ -53,8 +50,7 @@ run_comparison <- function(so, contacts, props, n_samp, n_resamp, n_run_samp){
         ## number of infections ##
         # use j to define the parms
         p <- define_calib_parms(i = j, btparms = calib_parms,
-                                so = so, pop_dist = props,
-                                contact = contacts )
+                                so = so, contact = contacts )
 
         vacc_level <- 0.5
         comp_endtime <- 20

@@ -38,10 +38,9 @@ test_that("prior density runs", {
 })
 
 test_that("likelihood generator works", {
-    pop_dist <- read_population_dist("../../../fullSO_SMDM/data/natsal_msid_props.tab")
-    contact_df <- read_contact_matrix("../../../fullSO_SMDM/data/natsal_msid.tab")
+    data("contact_msid_base")
     # is function
-    likelihood <- likelihood_generator('msid', pop_dist, contact_df)
+    likelihood <- likelihood_generator('msid', contact_msid_base)
     expect_is(likelihood, "function")
 
     # calculates likelihood of parms

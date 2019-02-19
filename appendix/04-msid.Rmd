@@ -93,24 +93,6 @@ sum(men_bi_high$d_part_p)
 msid_bidi <- make_bidirectional(msid_partner_dist)
 contact_msid_base <- balance_het(msid_bidi)
 format_table(head(contact_msid_base))
-
-library(stringr)
-ggplot(rbind(contact_msid_base)) +
-    geom_tile(aes(x = r_demo, y = rp_demo, fill=corrected_r), color="black", size = 0.2) +
-    scale_fill_gradient2(name="Annual Number\nof New Partnerships",
-                         low = "white",
-                         mid = "blue2",
-                         high = "black",
-                         midpoint = 3,
-                         na.value = "white") +
-    labs(x = "Group of Partner 1",
-         y = "Group of Partner 2") +
-    theme_minimal(base_size = 14) + coord_fixed() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-# save plot and data
-ggsave("plots/msid_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
-usethis::use_data(contact_msid_base, overwrite = TRUE)
 ```
 
 Check that this worked:
@@ -131,6 +113,32 @@ sexid_nos_compare <- msid_rep %>%
   select(r_demo, rp_sex, orig_p_pc = partners) %>%
   left_join(sexid_nos_by_grp, by = c("r_demo", "rp_sex"))
 format_table(sexid_nos_compare)
+```
+
+### Plot and save data
+
+```{r}
+ggplot(rbind(contact_msid_base)) +
+    geom_tile(aes(x = r_demo, y = rp_demo, fill=corrected_r), color="black", size = 0.2) +
+    scale_fill_gradient2(name="Annual Number\nof New Partnerships",
+                         low = "white",
+                         mid = "blue2",
+                         high = "black",
+                         midpoint = 3,
+                         na.value = "white") +
+    labs(x = "Group of Partner 1",
+         y = "Group of Partner 2") +
+    theme_minimal(base_size = 14) + coord_fixed() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# save plot and data
+ggsave("plots/msid_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
+
+## columns we need
+contact_msid_base <- contact_msid_base %>%
+  select(r_sex, r_sexid, r_sexact, r_demo,
+         rp_sex, rp_sexid, rp_sexact, rp_demo, prop = prop.r, corrected_r)
+usethis::use_data(contact_msid_base, overwrite = TRUE)
 ```
 
 ## Define prior distributions for calibration

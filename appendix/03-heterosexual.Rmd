@@ -277,6 +277,9 @@ We make a dataframe of 0s to append to the calculated partnership numbers.
 na_demos <- mutate(b_natsal_het_clean,
                    r_demo = r_demo,
                    rp_demo = rev(rp_demo),
+                   rp_sex = rev(rp_sex),
+                   rp_sexid = rev(rp_sexid),
+                   rp_sexact = rev(rp_sexact),
                    corrected_r = 0)
 head(na_demos)
 ```
