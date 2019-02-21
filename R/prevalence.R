@@ -8,14 +8,14 @@ calc_prevalence <- function(x, parms){
 
     # indices
     model_indices <- st$model_indices
-    parm_indices <- st$parm_indices
+    demo_indices <- st$demo_indices
 
     # make prevalence vector
     prev <- rep(0, n_demo_grps)
     for (i in 1:n_demo_grps){
         # get the indices for the infected people within each group
         model_ind <- with(model_indices,
-                          model_uid[parm_uid == i & (epi == 'Y' | epi == 'W')])
+                          model_uid[demo_uid == i & (epi == 'Y' | epi == 'W')])
         prev[i] <- sum(x[model_ind], na.rm = TRUE)/population_dist[i]
     }
 
@@ -27,16 +27,16 @@ calc_prevalence <- function(x, parms){
 
 #' @export
 format_prevalence <- function(prev, parms){
-    # make prevalence df with parm_uids
-    prev_df <- data.frame(parm_uid = 1:parms$structural$n_demo_grps,
+    # make prevalence df with demo_uids
+    prev_df <- data.frame(demo_uid = 1:parms$structural$n_demo_grps,
                           prev)
 
     # join with parms
-    prev_pretty <- left_join(prev_df, parms$structural$parm_indices, by = "parm_uid")
+    prev_pretty <- left_join(prev_df, parms$structural$demo_indices, by = "demo_uid")
 
     # join with dist
     prev_pretty_d <- left_join(prev_pretty, parms$structural$pdist_df, by = c("sexact", "sexid", "sex")) %>%
-        select(sex, sexid, sexact, prev, prop, parm_uid)
+        select(sex, sexid, sexact, prev, prop, demo_uid)
     return(prev_pretty_d)
 }
 

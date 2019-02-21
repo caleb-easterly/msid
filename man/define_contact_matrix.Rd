@@ -4,12 +4,12 @@
 \alias{define_contact_matrix}
 \title{define partnering rates between demographic groups}
 \usage{
-define_contact_matrix(contact_df, parm_indices)
+define_contact_matrix(contact_df, demo_indices)
 }
 \arguments{
 \item{contact_df}{data.frame with partnering rates in the \code{corrected_r} column}
 
-\item{parm_indices}{data.frame with the mapping of demographic groups to unique identifiers}
+\item{demo_indices}{data.frame with the mapping of demographic groups to unique identifiers}
 }
 \description{
 define partnering rates between demographic groups

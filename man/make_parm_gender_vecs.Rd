@@ -5,7 +5,7 @@
 \title{for parameters with a male value and a female value
 takes the value and turns into a vector of male and female values}
 \usage{
-make_parm_gender_vecs(mval, wval, parm_indices)
+make_parm_gender_vecs(mval, wval, demo_indices)
 }
 \description{
 for parameters with a male value and a female value

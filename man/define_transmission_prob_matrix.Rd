@@ -4,7 +4,7 @@
 \alias{define_transmission_prob_matrix}
 \title{define transmission probabilities between sexes}
 \usage{
-define_transmission_prob_matrix(betaMM, betaMW, betaWW, parm_indices)
+define_transmission_prob_matrix(betaMM, betaMW, betaWW, demo_indices)
 }
 \arguments{
 \item{betaMM}{prob. between men}
@@ -13,7 +13,7 @@ define_transmission_prob_matrix(betaMM, betaMW, betaWW, parm_indices)
 
 \item{betaWW}{prob. between women}
 
-\item{parm_indices}{data frame mapping demographic groups to unique identifiers}
+\item{demo_indices}{data frame mapping demographic groups to unique identifiers}
 }
 \description{
 transmission probabilities are by partnership

@@ -8,9 +8,9 @@ set.seed(101)
 
 ### MSID ###
 ### calibrate
+data("contact_msid_base")
 msid_reds <- run_comparison(so = 'msid',
-                            contacts = '../fullSO_SMDM/data/natsal_msid.tab',
-                            props = '../fullSO_SMDM/data/natsal_msid_props.tab',
+                            contacts = contact_msid_base,
                             n_samp = imis_n_samp,
                             n_resamp = imis_n_resamp,
                             n_run_samp = post_samp)

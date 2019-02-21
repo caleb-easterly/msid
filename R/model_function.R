@@ -21,7 +21,7 @@ model_function <- function(times, x, parms, vaccination){
     entry_exit_rate <- st$entry_exit_rate
     population_dist <- st$population_dist
     model_indices <- st$model_indices
-    parm_indices <- st$model_indices
+    demo_indices <- st$demo_indices
     n_demo_grps <- st$n_demo_grps
     n_equations <- st$n_equations
 
@@ -38,7 +38,7 @@ model_function <- function(times, x, parms, vaccination){
     # loop through equations
     for (i in 1:n_demo_grps){
         # define model vector indices for this pass through loop
-        this_group_indices <- with(model_indices, model_uid[parm_uid == i])
+        this_group_indices <- with(model_indices, model_uid[demo_uid == i])
         this_x <- this_group_indices[1]
         this_y <- this_group_indices[2]
         this_z <- this_group_indices[3]
