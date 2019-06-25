@@ -377,87 +377,87 @@ ether <- lapply(gparms, function(p)
 
 <!-- ### Sample From Gamma and carry out 3-step process -->
 
-<!-- Function to return a vector of average partering rates. -->
+Function to return a vector of average partering rates.
 
-<!-- ```{r} -->
-<!-- sample_gams <- function(gparms) { -->
-<!--   c <- sapply(1:4, function(i) rgamma(1, shape = gparms[[i]]$shape, rate = gparms[[i]]$rate)) -->
-<!-- } -->
-<!-- ``` -->
+```{r}
+sample_gams <- function(gparms) {
+  c <- sapply(1:4, function(i) rgamma(1, shape = gparms[[i]]$shape, rate = gparms[[i]]$rate))
+}
+```
 
-<!-- Function to replace in reported data frame. -->
+Function to replace in reported data frame.
 
-<!-- ```{r} -->
-<!-- replace_pr <- function(reported, new_pr) { -->
-<!--   reported$partners <- new_pr -->
-<!--   return(reported) -->
-<!-- } -->
-<!-- ``` -->
+```{r}
+replace_pr <- function(reported, new_pr) {
+  reported$partners <- new_pr
+  return(reported)
+}
+```
 
-<!-- We define a function that carries out the whole 3-step process, from the reported to balanced partnerships: -->
+We define a function that carries out the whole 3-step process, from the reported to balanced partnerships:
 
-<!-- ```{r} -->
-<!-- from_rep_to_bal <- function(reported) { -->
-<!--   offered <- make_offered_df(reported) -->
-<!--   dist <- distribute_partnerships(reported, offered) -->
-<!--   bidi <- make_bidirectional(dist) -->
-<!--   balanced <- balance_het(bidi) -->
-<!--   return(balanced) -->
-<!-- } -->
-<!-- ``` -->
+```{r}
+from_rep_to_bal <- function(reported) {
+  offered <- make_offered_df(reported)
+  dist <- distribute_partnerships(reported, offered)
+  bidi <- make_bidirectional(dist)
+  balanced <- balance_het(bidi)
+  return(balanced)
+}
+```
 
 
-<!-- Now, actually run the samples. -->
+Now, actually run the samples.
 
-<!-- ```{r} -->
-<!-- pr_samples <- function(gparms, reported) { -->
-<!--   means <- sample_gams(gparms) -->
-<!--   reprep <- replace_pr(reported, means) -->
-<!--   bal <- from_rep_to_bal(reprep) -->
-<!--   bal$corrected_r -->
-<!-- } -->
+```{r}
+pr_samples <- function(gparms, reported) {
+  means <- sample_gams(gparms)
+  reprep <- replace_pr(reported, means)
+  bal <- from_rep_to_bal(reprep)
+  bal$corrected_r
+}
 
-<!-- set.seed(101) -->
-<!-- sampled <- t(replicate(1000, pr_samples(gparms, het_sexact_rep))) -->
+set.seed(101)
+sampled <- t(replicate(1000, pr_samples(gparms, het_sexact_rep)))
 
-<!-- ``` -->
+```
 
-<!-- ### Plot distributions for each group -->
+### Plot distributions for each group
 
-<!-- ```{r} -->
-<!-- p1 <- b_natsal_het_clean$r_demo -->
-<!-- p2 <- b_natsal_het_clean$rp_demo -->
+```{r}
+p1 <- b_natsal_het_clean$r_demo
+p2 <- b_natsal_het_clean$rp_demo
 
-<!-- dist_df <- data.frame('grps' = paste0(p1, "/", p2)) -->
-<!-- descript_mat <- matrix(0, nrow = 8, ncol = 5) -->
+dist_df <- data.frame('grps' = paste0(p1, "/", p2))
+descript_mat <- matrix(0, nrow = 8, ncol = 5)
 
-<!-- for (i in 1:8){ -->
-<!--   samps <- sampled[, i] -->
-<!--   hist(samps, main = dist_df$grps[i], breaks = 100) -->
-<!--   mn <- mean(samps) -->
-<!--   sd <- sd(samps) -->
-<!--   descript <- quantile(samps) -->
-<!--   abline(v = mn, col = "green", lwd = 2) -->
-<!--   dist_df$mean[i] <- mn -->
-<!--   dist_df$sd[i] <- sd -->
-<!--   descript_mat[i, ] <- descript -->
-<!-- } -->
-<!-- colnames(descript_mat) <- c('min', 'q25', 'med', 'q75', 'max') -->
-<!-- dist_df <- cbind(dist_df, descript_mat) -->
-<!-- ``` -->
+for (i in 1:8){
+  samps <- sampled[, i]
+  hist(samps, main = dist_df$grps[i], breaks = 100)
+  mn <- mean(samps)
+  sd <- sd(samps)
+  descript <- quantile(samps)
+  abline(v = mn, col = "green", lwd = 2)
+  dist_df$mean[i] <- mn
+  dist_df$sd[i] <- sd
+  descript_mat[i, ] <- descript
+}
+colnames(descript_mat) <- c('min', 'q25', 'med', 'q75', 'max')
+dist_df <- cbind(dist_df, descript_mat)
+```
 
-<!-- ```{r} -->
-<!-- dist_df %>% -->
-<!--     kable(digits = 3) %>% -->
-<!--     kable_styling() -->
-<!-- ``` -->
+```{r}
+dist_df %>%
+    kable(digits = 3) %>%
+    kable_styling()
+```
 
-<!-- ### Use data in msid package -->
+### Use data in msid package
 
-<!-- ```{r} -->
-<!-- het_base_case <- b_natsal_het_clean -->
-<!-- colnames(sampled) <- p1 -->
-<!-- contact_het_samples <- sampled -->
-<!-- library(usethis) -->
-<!-- use_data(contact_het_samples, overwrite = TRUE) -->
-<!-- ``` -->
+```{r}
+het_base_case <- b_natsal_het_clean
+colnames(sampled) <- p1
+contact_het_samples <- sampled
+library(usethis)
+use_data(contact_het_samples, overwrite = TRUE)
+```

@@ -1,6 +1,6 @@
 # Goal of Analysis
 
-The goal is to estimate the annual number of new partnerships between each group of people in the model.
+The goal is to estimate the annual number of new sexual partnerships between each group of people in the model.
 
 In the paper, we use three model populations:
 
@@ -205,113 +205,44 @@ Create new variables `m_nonew` and `w_nonew`. This is the final natsal dataframe
 natsal_final <- update(natsal_sag,
                        m_nonew = ifelse(r_sex == "w", hetnonew, samnonew),
                        w_nonew = ifelse(r_sex == "m", hetnonew, samnonew),
-                       r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_"),
-                       r_demo_tog = paste(r_sex, "all", r_sexact, sep = "_"))
+                       r_demo = paste(r_sex, r_sexid, r_sexact, collapse = "_"))
 ```
 
 ## Analysis
 
-### All sexids, stratified
+### All sexids
 
-#### Mean new partner rate
+#### Means
 
 ```{r}
-all_sexid <- svyby(~m_nonew + w_nonew, by = ~r_sex + r_sexid + r_sexact,
-                   design = natsal_final, FUN = svymean)
+all_sexid <- svyby(~m_nonew + w_nonew, by = ~r_sex + r_sexid + r_sexact, design = natsal_final, svymean)
 all_sexid %>%
   format_table()
 ```
 
 #### Proportions
-
 ```{r}
-all_sexid_props <- data.frame(svymean(~r_demo, design = natsal_final))
-# improve group names
-all_sexid_props$r_demo <- str_sub(rownames(all_sexid_props), start = 7L)
-rownames(all_sexid_props) <- NULL
-all_sexid_props %>%
-  select(r_demo, mean, SE) %>%
+all_sexid <- svytotal(~r_demo, design = natsal_final, Ntotal = 1)
+all_sexid %>%
   format_table()
-```
-
-
-#### Join together
-```{r}
-all_sexid_joined <- all_sexid %>%
-  mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_")) %>%
-  left_join(all_sexid_props, by = "r_demo", suffix = c(".par", ".prop"))
-all_sexid_joined
-```
-
-### All sexids, all together
-
-#### Mean new partner rate
-
-```{r}
-all_sexid_tog <- svyby(~m_nonew + w_nonew, by = ~r_demo_tog,
-                   design = natsal_final, FUN = svymean)
-all_sexid_tog %>%
-  format_table()
-```
-
-#### Proportions
-
-```{r}
-all_sexid_tog_props <- data.frame(svymean(~r_demo_tog, design = natsal_final))
-# improve group names
-all_sexid_tog_props$r_demo <- str_sub(rownames(all_sexid_tog_props), start = 11L)
-rownames(all_sexid_props) <- NULL
-all_sexid_tog_props %>%
-  select(r_demo, mean, SE) %>%
-  format_table()
-```
-
-
-#### Join together
-```{r}
-all_sexid_joined <- all_sexid %>%
-  mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_")) %>%
-  left_join(all_sexid_props, by = "r_demo", suffix = c(".par", ".prop"))
-all_sexid_joined
 ```
 
 
 ### Heterosexual only
 
 ```{r}
-het <- subset(natsal_final, r_sexid == "het")
-het_sexid <- svyby(~m_nonew + w_nonew, by = ~r_sex + r_sexid + r_sexact, design = het, svymean)
+het <- subset(natsal_final, sexid == "het")
+het_sexid <- svyby(~m_nonew + w_nonew, by = ~r_sex + r_sexact, design = natsal_final, svymean)
 # assuming 0 between same-sex
-het_sexid["m.het.high", "m_nonew"] <-
-  het_sexid["m.het.high", "se.m_nonew"] <-
-  het_sexid["m.het.low", "m_nonew"] <- 
-  het_sexid["m.het.low", "se.m_nonew"] <- 
-  het_sexid["w.het.high", "w_nonew"] <-
-  het_sexid["w.het.high", "se.w_nonew"] <- 
-  het_sexid["w.het.low", "w_nonew"] <-
-  het_sexid["w.het.low", "se.w_nonew"] <- 0
+het_sexid["m.high", "m_nonew"] <-
+  het_sexid["m.high", "se.m_nonew"] <-
+  het_sexid["m.low", "m_nonew"] <- 
+  het_sexid["m.low", "se.m_nonew"] <- 
+  het_sexid["w.high", "w_nonew"] <-
+  het_sexid["w.high", "se.w_nonew"] <- 
+  het_sexid["w.low", "w_nonew"] <-
+  het_sexid["w.low", "se.w_nonew"] <- 0
 
 het_sexid %>%
   format_table()
-```
-
-#### Proportions
-
-```{r}
-het_props <- as.data.frame(svymean(~r_demo, design = het))
-# improve group names
-het_props$r_demo <- str_sub(rownames(het_props), start = 7L)
-rownames(het_props) <- NULL
-het_props %>%
-  select(r_demo, mean, SE) %>%
-  format_table()
-```
-
-#### Join Together
-
-```{r}
-het_sexid_joined <- het_sexid %>%
-  mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_")) %>%
-  left_join(het_props, by = "r_demo", suffix = c(".par", ".prop"))
-het_sexid_joined
 ```

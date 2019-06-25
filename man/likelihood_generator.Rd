@@ -4,12 +4,12 @@
 \alias{likelihood_generator}
 \title{Used to define a likelihood function either for het or so mixing structures}
 \usage{
-likelihood_generator(so, contact)
+likelihood_generator(so, rep_df)
 }
 \arguments{
 \item{so}{sex orientation: either "het" or "msid"}
 
-\item{contact}{path to the contact table}
+\item{rep_df}{reported partnerships dataframe}
 }
 \description{
 Used to define a likelihood function either for het or so mixing structures

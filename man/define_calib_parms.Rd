@@ -4,7 +4,7 @@
 \alias{define_calib_parms}
 \title{take back-transformed calib results and pass to define_parms}
 \usage{
-define_calib_parms(i, btparms, so, contact)
+define_calib_parms(i, btparms, so, rep_df)
 }
 \description{
 take back-transformed calib results and pass to define_parms

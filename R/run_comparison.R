@@ -5,6 +5,23 @@ define_vaccination <- function(parms, m_vacc, w_vacc){
                           parms$structural$demo_indices)
 }
 
+#' function to calibrate
+#'
+#' @export
+calibrate <- function(so, rep_df, n_samp, n_resamp) {
+    ### calibrate
+    likelihood <- likelihood_generator(so = so, rep_df)
+    prior <- prior_generator(rep_df)
+    sample.prior <- sample_prior_generator(rep_df)
+
+    environment(IMIS) <- environment() # this helps IMIS() run...for some reason
+    calib <- IMIS(n_samp, n_resamp)
+
+    calib_parms <- backtransform_parms(calib$resample, rep_df)
+    return(list("parms" = calib_parms, "imis" = calib))
+}
+
+
 #' Run the comparison for SMDM 2018
 #' 50 female vaccination versus 50 male and female vaccination
 #'
@@ -19,16 +36,6 @@ define_vaccination <- function(parms, m_vacc, w_vacc){
 #' @importFrom mvtnorm rmvnorm dmvnorm
 #' @export
 run_comparison <- function(so, contacts, n_samp, n_resamp, n_run_samp){
-    parms <- define_parameters(contact_df = contacts, sexids = so)
-
-    ### calibrate
-    likelihood <- likelihood_generator(so = so, contact = contacts)
-
-    environment(IMIS) <- environment() # this helps IMIS() run...for some reason
-    calib <- IMIS(n_samp, n_resamp)
-
-    # back-transform parameters for cases estimation
-    calib_parms <- backtransform_parms(calib$resample)
 
     reds <- prevs <- vector(mode = "list", length = n_resamp)
 

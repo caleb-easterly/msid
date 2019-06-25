@@ -7,33 +7,44 @@
 #' before being sent to the model function.
 #'
 #' @export
-sample.prior <- function(nsamps){
-    # beta
-    logit_betaMM <- logit(rbeta(nsamps, 3, 1))
-    logit_betaMF <- logit(rbeta(nsamps, 3, 1))
-    logit_betaFF <- logit(rbeta(nsamps, 3, 1))
+sample_prior_generator <- function(rep_df){
+    sample.prior <- function(nsamps) {
+        # beta
+        logit_betaMM <- logit(rbeta(nsamps, 3, 1))
+        logit_betaMF <- logit(rbeta(nsamps, 3, 1))
+        logit_betaFF <- logit(rbeta(nsamps, 3, 1))
 
-    # InfClearRate
-    estInfDur <- estimate_inf_duration()
-    log_inf_dur_M <- log(rgamma(nsamps,
-                                shape = estInfDur$gammaM$alpha,
-                                rate = estInfDur$gammaM$beta))
-    log_inf_dur_F <- log(rgamma(nsamps,
-                                shape = estInfDur$gammaF$alpha,
-                                rate = estInfDur$gammaF$beta))
+        # InfClearRate
+        estInfDur <- estimate_inf_duration()
+        log_inf_dur_M <- log(rgamma(nsamps,
+                                    shape = estInfDur$gammaM$alpha,
+                                    rate = estInfDur$gammaM$beta))
+        log_inf_dur_F <- log(rgamma(nsamps,
+                                    shape = estInfDur$gammaF$alpha,
+                                    rate = estInfDur$gammaF$beta))
 
-    # NatImmWane.
-    nat_imm_dur_params <- gamma_params_mom(20, 15, scale = FALSE)
-    log_nat_imm_dur_M <- log(rgamma(nsamps, shape = nat_imm_dur_params$alpha, rate = nat_imm_dur_params$beta))
-    log_nat_imm_dur_F <- log(rgamma(nsamps, shape = nat_imm_dur_params$alpha, rate = nat_imm_dur_params$beta))
+        # NatImmWane.
+        nat_imm_dur_params <- gamma_params_mom(20, 15, scale = FALSE)
+        log_nat_imm_dur_M <- log(rgamma(nsamps, shape = nat_imm_dur_params$alpha, rate = nat_imm_dur_params$beta))
+        log_nat_imm_dur_F <- log(rgamma(nsamps, shape = nat_imm_dur_params$alpha, rate = nat_imm_dur_params$beta))
 
-    cbind(logit_betaMM,
-          logit_betaMF,
-          logit_betaFF,
-          log_inf_dur_M,
-          log_inf_dur_F,
-          log_nat_imm_dur_M,
-          log_nat_imm_dur_F)
+        # contact
+        contact_gams <- define_npr_gammas(rep_df)
+        nprs <- data.frame(t(replicate(nsamps, log(samp_npr_gammas(contact_gams, rep_df)), simplify = TRUE)))
+        names(nprs) <- rep_df$r_demo
+        # needs to be a matrix for IMIS
+        data.matrix(
+            data.frame("logit_betaMM" = logit_betaMM,
+                       "logit_betaMF" = logit_betaMF,
+                       "logit_betaFF" = logit_betaFF,
+                       "log_inf_dur_M" = log_inf_dur_M,
+                       "log_inf_dur_F" = log_inf_dur_F,
+                       "log_nat_imm_dur_M" = log_nat_imm_dur_M,
+                       "log_nat_imm_dur_F" = log_nat_imm_dur_F,
+                       nprs)
+        )
+    }
+    return(sample.prior)
 }
 
 
@@ -41,64 +52,73 @@ sample.prior <- function(nsamps){
 #' takes parameters directly from sample.prior()
 #'
 #' @export
-prior <- function(parms){
-    bt_parms <- backtransform_parms(parms)
+prior_generator <- function(rep_df){
+    prior <- function(parms) {
+        bt_parms <- backtransform_parms(parms, rep_df)
 
-    # beta
-    betaMM_like <- dbeta(bt_parms[, 1], 3, 1)
-    betaMF_like <- dbeta(bt_parms[, 2], 3, 1)
-    betaFF_like <- dbeta(bt_parms[, 3], 3, 1)
+        # beta
+        betaMM_like <- dbeta(bt_parms[, "betaMM"], 3, 1)
+        betaMF_like <- dbeta(bt_parms[, "betaMF"], 3, 1)
+        betaFF_like <- dbeta(bt_parms[, "betaFF"], 3, 1)
 
-    # InfClearRate
-    estInfDur <- estimate_inf_duration()
+        # InfClearRate
+        estInfDur <- estimate_inf_duration()
 
-    # take reciprocal of inf rate to get inf dur
-    inf_dur_M <- 1/bt_parms[, "inf_clear_rate_M"]
-    inf_dur_M_like <- dgamma(inf_dur_M,
-                                    shape = estInfDur$gammaM$alpha,
-                                    rate = estInfDur$gammaM$beta)
-    inf_dur_F <- 1/bt_parms[, "inf_clear_rate_F"]
-    inf_dur_F_like <- dgamma(inf_dur_F,
-                                    shape = estInfDur$gammaF$alpha,
-                                    rate = estInfDur$gammaF$beta)
+        # take reciprocal of inf rate to get inf dur
+        inf_dur_M <- 1/bt_parms[, "inf_clear_rate_M"]
+        inf_dur_M_like <- dgamma(inf_dur_M,
+                                 shape = estInfDur$gammaM$alpha,
+                                 rate = estInfDur$gammaM$beta)
+        inf_dur_F <- 1/bt_parms[, "inf_clear_rate_F"]
+        inf_dur_F_like <- dgamma(inf_dur_F,
+                                 shape = estInfDur$gammaF$alpha,
+                                 rate = estInfDur$gammaF$beta)
 
-    # NatImmWane
-    estNatImmDur <- gamma_params_mom(20, 15, scale = FALSE)
-    # bt_parms returns rate, but we want duration - inverse
-    nat_imm_dur_M <- 1/bt_parms[, "nat_imm_wane_rate_M"]
-    nat_imm_dur_M_like <- dgamma(nat_imm_dur_M,
-                                 shape = estNatImmDur$alpha,
-                                 rate = estNatImmDur$beta)
-    nat_imm_dur_F <- 1/bt_parms[, "nat_imm_wane_rate_F"]
-    nat_imm_dur_F_like <- dgamma(nat_imm_dur_F,
-                                 shape = estNatImmDur$alpha,
-                                 rate = estNatImmDur$beta)
+        # NatImmWane
+        estNatImmDur <- gamma_params_mom(20, 15, scale = FALSE)
+        # bt_parms returns rate, but we want duration - inverse
+        nat_imm_dur_M <- 1/bt_parms[, "nat_imm_wane_rate_M"]
+        nat_imm_dur_M_like <- dgamma(nat_imm_dur_M,
+                                     shape = estNatImmDur$alpha,
+                                     rate = estNatImmDur$beta)
+        nat_imm_dur_F <- 1/bt_parms[, "nat_imm_wane_rate_F"]
+        nat_imm_dur_F_like <- dgamma(nat_imm_dur_F,
+                                     shape = estNatImmDur$alpha,
+                                     rate = estNatImmDur$beta)
 
-    dens_mat <- cbind(betaMM_like,
-                      betaMF_like,
-                      betaFF_like,
-                      inf_dur_M_like,
-                      inf_dur_F_like,
-                      nat_imm_dur_M_like,
-                      nat_imm_dur_F_like)
-    apply(dens_mat, 1, prod)
+        # contact
+        contact_gams <- define_npr_gammas(rep_df)
+        nprs <- bt_parms[, rep_df$r_demo]
+        npr_like <- d_npr_gammas(nprs, contact_gams)
+
+        dens_mat <- cbind(betaMM_like,
+                          betaMF_like,
+                          betaFF_like,
+                          inf_dur_M_like,
+                          inf_dur_F_like,
+                          nat_imm_dur_M_like,
+                          nat_imm_dur_F_like,
+                          npr_like)
+        apply(dens_mat, 1, prod)
+    }
+    return(prior)
 }
 
 #' Used to define a likelihood function either for het or so mixing structures
 #'
 #' @param so sex orientation: either "het" or "msid"
-#' @param contact path to the contact table
+#' @param rep_df reported partnerships dataframe
 #' @import parallel
 #' @export
-likelihood_generator <- function(so, contact){
+likelihood_generator <- function(so, rep_df){
     likelihood <- function(parms) {
-        btparms <- backtransform_parms(parms)
+        btparms <- backtransform_parms(parms, rep_df)
         fTrue <- female_prevalence_target()
         mTrue <- male_prevalence_target()
         cl <- makeForkCluster(detectCores())
         like <- parSapply(cl, 1:nrow(btparms), function(i) {
             # run model
-            f_mod_prev <- run_model_with_btparms(i, btparms, so, contact)
+            f_mod_prev <- run_model_with_btparms(i, btparms, so, rep_df)
 
             # group prevalence to gender
             prev_grpd <- group_prevalence_to_gender(f_mod_prev)
@@ -118,9 +138,9 @@ likelihood_generator <- function(so, contact){
 #' Called from the likelihood function.
 #'
 #' @export
-run_model_with_btparms <- function(i, btparms, so, contact){
+run_model_with_btparms <- function(i, btparms, so, rep_df){
     # define one set of parameters
-    parms <- define_calib_parms(i, btparms, so, contact)
+    parms <- define_calib_parms(i, btparms, so, rep_df)
     # estimate prevalence under no-vaccine conditions
     mod_prev <- run_to_steady(parms, vaccination = parms$structural$vacc0)
     # calculate prevalence, given
@@ -132,27 +152,29 @@ run_model_with_btparms <- function(i, btparms, so, contact){
 
 #' take back-transformed calib results and pass to define_parms
 #' @export
-define_calib_parms <- function(i, btparms, so, contact){
-    ith_set <- btparms[i, ]
-    parms <- define_parameters(betaMM = ith_set["betaMM"],
-                               betaMW = ith_set["betaMF"],
-                               betaWW = ith_set["betaFF"],
-                               inf_clear_rate_M = ith_set["inf_clear_rate_M"],
-                               inf_clear_rate_W = ith_set["inf_clear_rate_F"],
-                               nat_imm_wane_rate_M = ith_set["nat_imm_wane_rate_M"],
-                               nat_imm_wane_rate_W = ith_set["nat_imm_wane_rate_F"],
+define_calib_parms <- function(i, btparms, so, rep_df){
+    # access npr columns and ith row
+    nprs <- btparms[i, rep_df$r_demo]
+    rep_df$part_p <- nprs
+    contact <- het_rep_to_bal(rep_df)
+    parms <- define_parameters(betaMM = btparms[i, "betaMM"],
+                               betaMW = btparms[i, "betaMF"],
+                               betaWW = btparms[i, "betaFF"],
+                               inf_clear_rate_M = btparms[i, "inf_clear_rate_M"],
+                               inf_clear_rate_W = btparms[i, "inf_clear_rate_F"],
+                               nat_imm_wane_rate_M = btparms[i, "nat_imm_wane_rate_M"],
+                               nat_imm_wane_rate_W = btparms[i, "nat_imm_wane_rate_F"],
                                sexids = so,
                                contact_df = contact)
     return(parms)
 }
 
 
-
 #' Back-transform parameters from the
 #' sampled form to the model and/or prior form
 #'
 #' @export
-backtransform_parms <- function(parms){
+backtransform_parms <- function(parms, rep_df){
     betaMM <- ilogit(parms[, "logit_betaMM"])
     betaMF <- ilogit(parms[, "logit_betaMF"])
     betaFF <- ilogit(parms[, "logit_betaFF"])
@@ -162,13 +184,21 @@ backtransform_parms <- function(parms){
     inf_clear_rate_F <- 1/exp(parms[, "log_inf_dur_F"])
     nat_imm_wane_rate_M <- 1/exp(parms[, "log_nat_imm_dur_M"])
     nat_imm_wane_rate_F <- 1/exp(parms[, "log_nat_imm_dur_F"])
-    cbind(betaMM,
-          betaMF,
-          betaFF,
-          inf_clear_rate_M,
-          inf_clear_rate_F,
-          nat_imm_wane_rate_M,
-          nat_imm_wane_rate_F)
+    # nprs
+    nprs <- exp(parms[, rep_df$r_demo])
+
+    data.matrix(
+        data.frame(
+            "betaMM" = betaMM,
+            "betaMF" = betaMF,
+            "betaFF" = betaFF,
+            "inf_clear_rate_M" = inf_clear_rate_M,
+            "inf_clear_rate_F" = inf_clear_rate_F,
+            "nat_imm_wane_rate_M" = nat_imm_wane_rate_M,
+            "nat_imm_wane_rate_F" =nat_imm_wane_rate_F,
+            nprs
+        )
+    )
 }
 
 

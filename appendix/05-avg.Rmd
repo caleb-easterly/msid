@@ -83,12 +83,6 @@ sum(men_bi_high$d_part_p)
 avg_bidi <- make_bidirectional(avg_partner_dist)
 contact_avg_base <- balance_het(avg_bidi)
 format_table(contact_avg_base)
-
-plot_mixing_matrix(contact_avg_base)
-
-# save plot and data
-ggsave("plots/avg_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
-usethis::use_data(contact_avg_base, overwrite = TRUE)
 ```
 
 Check that this worked:
@@ -109,6 +103,20 @@ sexid_nos_compare <- avg_rep %>%
   select(r_demo, rp_sex, orig_p_pc = partners) %>%
   left_join(sexid_nos_by_grp, by = c("r_demo", "rp_sex"))
 format_table(sexid_nos_compare)
+```
+
+Plots and data
+
+```{r}
+plot_mixing_matrix(contact_avg_base)
+
+# save plot and data
+ggsave("plots/avg_partner_dist.png", width = 7, height=6, units = 'in', dpi =500)
+
+contact_avg_base <- contact_avg_base %>%
+  select(r_sex, r_sexid, r_sexact, r_demo,
+         rp_sex, rp_sexid, rp_sexact, rp_demo, prop = prop.r, corrected_r)
+usethis::use_data(contact_avg_base, overwrite = TRUE)
 ```
 
 ## Define prior distributions for calibration
