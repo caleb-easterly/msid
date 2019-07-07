@@ -31,6 +31,7 @@ library(ggplot2)
 library(knitr)
 library(kableExtra)
 library(stringr)
+library(usethis)
 ```
 
 This is a function to pretty-print tables.
@@ -43,7 +44,6 @@ format_table <- function(df) {
 }
 ```
 
-todo: REDO ALL ANALYSIS IN SURVEY PACKAGE.
 
 ## Relevant Variables in Natsal
 
@@ -59,17 +59,6 @@ The following variables in the Natsal data set are relevant to our analysis:
     - 3: bisexual
     - 4: other
     - 9: not answered
-
-* everhet: ever had a heterosexual sexual partnership
-    - 1 is yes
-    - 0 is no
-    - 9 is "unclassifiable"
-
-* eversam: Ever had a same-sex partnership
-    - 1 is yes
-    - 2 is no
-    - 9: NA
-    - -1: not answered
 
 * hetnonew: total number of new heterosexual partners in the past year
     - 0: if het1yr=0 | (het1yr=1 & hetnewp=2)
@@ -97,7 +86,7 @@ The following variables in the Natsal data set are relevant to our analysis:
 
 Load NATSAL data in R form:
 ```{r}
-load("../../old/sfceSO/natsal_R_df.rda")
+load("../../natsal_R_df.rda")
 ```
 
 All the subsetting and analyses are done using functions the `survey` package. To do this, we first have to specify the survey design:
@@ -107,8 +96,8 @@ library(survey)
 natsal_des <- svydesign(data = natsal_R_df, ids=~psu_scrm,
                         strata=~stratagrp2, weights=~total_wt, nest = TRUE)
 ```
- 
-We focus on a higher-risk age group: 18-year-olds to 35-year-olds.
+
+We focus on a higher-risk age group: 18-year-olds to 34-year-olds.
 
 ```{r}
 MIN_AGE <- 18
@@ -116,6 +105,68 @@ MAX_AGE <- 34
 
 natsal_hr <- subset(natsal_des, dage >= MIN_AGE & dage <= MAX_AGE)
 ```
+
+### Re-code missing data
+
+```{r}
+natsal_hr <- update(natsal_hr,
+                    hetnonew = ifelse(hetnonew < 99 & hetnonew >= 0, hetnonew, NA),
+                    samnonew = ifelse(samnonew < 995 & samnonew >= 0, samnonew, NA),
+                    totnewyr = ifelse(totnewyr < 999 & totnewyr >= 0, totnewyr, NA),
+                    sexid = ifelse(sexid == 9, NA, sexid))
+```
+
+## Descriptive Analyses
+
+### Sample Size
+
+```{r}
+svytotal(~total_wt, natsal_hr)
+```
+
+### Age
+
+```{r}
+svymean(~dage, natsal_hr)
+```
+
+### Sex Distribution
+
+```{r}
+svytotal(~factor(rsex), natsal_hr)
+svymean(~factor(rsex), natsal_hr)
+```
+
+### Sexual Identity
+
+```{r}
+svytotal(~factor(sexid, exclude = ""), natsal_hr)
+svymean(~factor(sexid, exclude = ""), natsal_hr)
+```
+
+### Number of new heterosexual partners
+
+```{r}
+svytotal(~factor(hetnonew >= 2, exclude = ""), natsal_hr)
+svymean(~factor(hetnonew >= 2, exclude = ""), natsal_hr)
+```
+
+### Number of new same-sex partners in the last year
+
+```{r}
+svytotal(~factor(samnonew >= 2, exclude = ""), natsal_hr)
+svymean(~factor(samnonew >= 2, exclude = ""), natsal_hr)
+```
+
+### Total number of new partners in the last year
+
+```{r}
+svytotal(~factor(totnewyr >= 2, exclude = ""), natsal_hr)
+svymean(~factor(totnewyr >= 2, exclude = ""), natsal_hr)
+```
+
+
+## Further data preparation
 
 Next, we make new indicator variables, recode some variables to make their values more transparent, and select only relevant variables.
 
@@ -127,21 +178,18 @@ natsal_sexid <- subset(natsal_hr, sexid == 1 | sexid == 2 | sexid == 3)
 nrow(natsal_sexid) / nrow(natsal_hr)
 ```
 
-2. Remove missing partner data. For `hetnonew`, "99" indicates missingness and "-1" indicates "not applicable". For `samnonew`, "999" indicates missingness and "-1" is not applicable. Again, the missing data is a small proportion of the total (less than 3%).
-```{r}
-natsal_code_missing <- update(natsal_sexid,
-                              hetnonew = ifelse(hetnonew < 99 & hetnonew >= 0, hetnonew, NA),
-                              samnonew = ifelse(samnonew < 995 & samnonew >= 0, samnonew, NA))
+2. Now, we impute missing partnership numbers.
 
+```{r}
 library(HotDeckImputation)
 vars <- data.matrix(
-  natsal_code_missing$variables[, c("dage", "sexid", "hetnonew", "samnonew")]
+  natsal_sexid$variables[, c("dage", "sexid", "hetnonew", "samnonew")]
 )
 imputed <- data.frame(impute.CPS_SEQ_HD(vars, 
                                     covariates = c(1, 2),
                                     initialvalues = 0,
                                     modifyinplace = FALSE))
-natsal_imp <- update(natsal_code_missing,
+natsal_imp <- update(natsal_sexid,
                      hetnonew = imputed$hetnonew,
                      samnonew = imputed$samnonew)
 ```
@@ -206,7 +254,8 @@ natsal_final <- update(natsal_sag,
                        m_nonew = ifelse(r_sex == "w", hetnonew, samnonew),
                        w_nonew = ifelse(r_sex == "m", hetnonew, samnonew),
                        r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_"),
-                       r_demo_tog = paste(r_sex, "all", r_sexact, sep = "_"))
+                       r_sexid_tog = "all",
+                       r_demo_tog = paste(r_sex, r_sexid_tog, r_sexact, sep = "_"))
 ```
 
 ## Analysis
@@ -216,10 +265,27 @@ natsal_final <- update(natsal_sag,
 #### Mean new partner rate
 
 ```{r}
-all_sexid <- svyby(~m_nonew + w_nonew, by = ~r_sex + r_sexid + r_sexact,
+all_sexid <- svyby(~m_nonew + w_nonew,
+                   by = ~r_sex + r_sexid + r_sexact,
                    design = natsal_final, FUN = svymean)
-all_sexid %>%
+
+# for easier use in the model, we give up male and female partnerships their own row
+reshape_pt_table <- function(tab) {
+  m_only <- select(tab, r_sex, r_sexid, r_sexact, pt_p = m_nonew, pt_p.se = se.m_nonew) %>%
+    mutate(rp_sex = "m")
+  w_only <- select(tab, r_sex, r_sexid, r_sexact, pt_p = w_nonew, pt_p.se = se.w_nonew) %>%
+    mutate(rp_sex = "w")
+  tog <- rbind(m_only, w_only) %>%
+    select(r_sex, r_sexid, r_sexact, rp_sex, pt_p, pt_p.se) %>%
+    arrange(r_sex, r_sexid, r_sexact)
+  return(tog)
+}
+
+all_sexid_pt_long <- reshape_pt_table(all_sexid)
+
+all_sexid_pt_long %>%
   format_table()
+use_data(all_sexid_pt_long, overwrite = TRUE)
 ```
 
 #### Proportions
@@ -229,29 +295,38 @@ all_sexid_props <- data.frame(svymean(~r_demo, design = natsal_final))
 # improve group names
 all_sexid_props$r_demo <- str_sub(rownames(all_sexid_props), start = 7L)
 rownames(all_sexid_props) <- NULL
+split_demo <- function(tab) {
+  demos <- str_split(tab$r_demo, "_", simplify = TRUE)
+  tab$r_sex <- demos[, 1]
+  tab$r_sexid <- demos[, 2]
+  tab$r_sexact <- demos[, 3]
+  tab
+}
+all_sexid_props <- all_sexid_props %>%
+  split_demo() %>%
+  select(r_sex, r_sexid, r_sexact, prop_mean = mean, prop_se = SE)
+
 all_sexid_props %>%
-  select(r_demo, mean, SE) %>%
   format_table()
+
+use_data(all_sexid_props, overwrite = TRUE)
 ```
 
 
-#### Join together
-```{r}
-all_sexid_joined <- all_sexid %>%
-  mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_")) %>%
-  left_join(all_sexid_props, by = "r_demo", suffix = c(".par", ".prop"))
-all_sexid_joined
-```
-
-### All sexids, all together
+### All sexids, merged together
 
 #### Mean new partner rate
 
 ```{r}
-all_sexid_tog <- svyby(~m_nonew + w_nonew, by = ~r_demo_tog,
-                   design = natsal_final, FUN = svymean)
-all_sexid_tog %>%
+sexid_tog <- svyby(~m_nonew + w_nonew, by = ~r_sex + r_sexid_tog + r_sexact,
+                   design = natsal_final, FUN = svymean) %>%
+  rename(r_sexid = r_sexid_tog)
+
+sexid_tog_long <- reshape_pt_table(sexid_tog)
+
+sexid_tog_long %>%
   format_table()
+use_data(sexid_tog_long, overwrite = TRUE)
 ```
 
 #### Proportions
@@ -260,19 +335,13 @@ all_sexid_tog %>%
 all_sexid_tog_props <- data.frame(svymean(~r_demo_tog, design = natsal_final))
 # improve group names
 all_sexid_tog_props$r_demo <- str_sub(rownames(all_sexid_tog_props), start = 11L)
-rownames(all_sexid_props) <- NULL
+rownames(all_sexid_tog_props) <- NULL
+all_sexid_tog_props <- all_sexid_tog_props %>%
+  split_demo() %>%
+  select(r_sex, r_sexid, r_sexact, prop_mean = mean, prop_se = SE)
+
 all_sexid_tog_props %>%
-  select(r_demo, mean, SE) %>%
   format_table()
-```
-
-
-#### Join together
-```{r}
-all_sexid_joined <- all_sexid %>%
-  mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_")) %>%
-  left_join(all_sexid_props, by = "r_demo", suffix = c(".par", ".prop"))
-all_sexid_joined
 ```
 
 
@@ -282,17 +351,20 @@ all_sexid_joined
 het <- subset(natsal_final, r_sexid == "het")
 het_sexid <- svyby(~m_nonew + w_nonew, by = ~r_sex + r_sexid + r_sexact, design = het, svymean)
 # assuming 0 between same-sex
-het_sexid["m.het.high", "m_nonew"] <-
-  het_sexid["m.het.high", "se.m_nonew"] <-
-  het_sexid["m.het.low", "m_nonew"] <- 
-  het_sexid["m.het.low", "se.m_nonew"] <- 
-  het_sexid["w.het.high", "w_nonew"] <-
-  het_sexid["w.het.high", "se.w_nonew"] <- 
-  het_sexid["w.het.low", "w_nonew"] <-
-  het_sexid["w.het.low", "se.w_nonew"] <- 0
+het_sexid["m.het.high", "m_nonew"] <- 0
+het_sexid["m.het.high", "se.m_nonew"] <- 0
+het_sexid["m.het.low", "m_nonew"] <- 0
+het_sexid["m.het.low", "se.m_nonew"] <- 0 
+het_sexid["w.het.high", "w_nonew"] <- 0
+het_sexid["w.het.high", "se.w_nonew"] <- 0 
+het_sexid["w.het.low", "w_nonew"] <- 0
+het_sexid["w.het.low", "se.w_nonew"] <- 0
 
-het_sexid %>%
+# reshape table in a longer format
+het_sexid_long <- reshape_pt_table(het_sexid)
+het_sexid_long %>%
   format_table()
+use_data(het_sexid_long, overwrite = TRUE)
 ```
 
 #### Proportions
@@ -302,16 +374,11 @@ het_props <- as.data.frame(svymean(~r_demo, design = het))
 # improve group names
 het_props$r_demo <- str_sub(rownames(het_props), start = 7L)
 rownames(het_props) <- NULL
+het_props <- het_props %>%
+  split_demo() %>%
+  select(r_sex, r_sexid, r_sexact, prop_mean = mean, prop_se = SE)
+
 het_props %>%
-  select(r_demo, mean, SE) %>%
   format_table()
-```
-
-#### Join Together
-
-```{r}
-het_sexid_joined <- het_sexid %>%
-  mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_")) %>%
-  left_join(het_props, by = "r_demo", suffix = c(".par", ".prop"))
-het_sexid_joined
+use_data(het_props, overwrite = TRUE)
 ```

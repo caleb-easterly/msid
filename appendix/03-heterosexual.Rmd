@@ -4,7 +4,7 @@ This mixing matrix is for the heterosexual-only model. There are two sexes, one 
 
 ## Estimate the number of new partnerships with each sex
 
-This is a function that we'll need to use to get the proportion of the population in each group. This is important because we calculate the total number of partnerships supplied by a group as the per-person number of partnerships in a certain group times the proportion of the population in that group. 
+This is a function that we'll need to use to get the proportion of the population in each group. This is important because we calculate the total number of partnerships supplied by a group as the per-person number of partnerships in a certain group times the proportion of the population in that group.
 
 For example, if high-SA women had 2 partnerships per year on average and 25% of the population was high-SA women, then the group of high-SA women would have $2 \times 0.25 = 0.5$ partnerships per year. This number is called `part_g` in the code below.
 
@@ -102,6 +102,9 @@ where:
 
 To calculate this for each combination of `r_sex` and `rp_sex`, we take the total number of partnerships 'offered' by each sex and sexual activity group, and divide it by the total number of partnerships offered by that sex. Then, we define `rp_sexid = r_sexid`, so the proportion `prop_of_avail` represents the proportion of partnerships from people of `sex1` available to `sex2` that come from people of `sex1` and SA group `sexact1`.
 
+```{r}
+het_sexid_joined
+```
 
 ```{r}
 make_offered_df <- function(df) {
