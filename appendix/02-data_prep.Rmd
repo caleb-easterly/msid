@@ -285,7 +285,8 @@ all_sexid_pt_long <- reshape_pt_table(all_sexid)
 
 all_sexid_pt_long %>%
   format_table()
-use_data(all_sexid_pt_long, overwrite = TRUE)
+all_sexid_rep <- all_sexid_pt_long
+use_data(all_sexid_rep, overwrite = TRUE)
 ```
 
 #### Proportions
@@ -304,7 +305,7 @@ split_demo <- function(tab) {
 }
 all_sexid_props <- all_sexid_props %>%
   split_demo() %>%
-  select(r_sex, r_sexid, r_sexact, prop_mean = mean, prop_se = SE)
+  select(r_sex, r_sexid, r_sexact, prop = mean, prop_se = SE)
 
 all_sexid_props %>%
   format_table()
@@ -326,7 +327,8 @@ sexid_tog_long <- reshape_pt_table(sexid_tog)
 
 sexid_tog_long %>%
   format_table()
-use_data(sexid_tog_long, overwrite = TRUE)
+sexid_tog_rep <- sexid_tog_long
+use_data(sexid_tog_rep, overwrite = TRUE)
 ```
 
 #### Proportions
@@ -338,10 +340,12 @@ all_sexid_tog_props$r_demo <- str_sub(rownames(all_sexid_tog_props), start = 11L
 rownames(all_sexid_tog_props) <- NULL
 all_sexid_tog_props <- all_sexid_tog_props %>%
   split_demo() %>%
-  select(r_sex, r_sexid, r_sexact, prop_mean = mean, prop_se = SE)
+  select(r_sex, r_sexid, r_sexact, prop = mean, prop_se = SE)
 
 all_sexid_tog_props %>%
   format_table()
+sexid_tog_props <- all_sexid_tog_props
+use_data(sexid_tog_props, overwrite = TRUE)
 ```
 
 
@@ -364,7 +368,9 @@ het_sexid["w.het.low", "se.w_nonew"] <- 0
 het_sexid_long <- reshape_pt_table(het_sexid)
 het_sexid_long %>%
   format_table()
-use_data(het_sexid_long, overwrite = TRUE)
+# rename
+het_rep <- het_sexid_long
+use_data(het_rep, overwrite = TRUE)
 ```
 
 #### Proportions
@@ -376,7 +382,7 @@ het_props$r_demo <- str_sub(rownames(het_props), start = 7L)
 rownames(het_props) <- NULL
 het_props <- het_props %>%
   split_demo() %>%
-  select(r_sex, r_sexid, r_sexact, prop_mean = mean, prop_se = SE)
+  select(r_sex, r_sexid, r_sexact, prop = mean, prop_se = SE)
 
 het_props %>%
   format_table()
