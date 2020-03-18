@@ -77,15 +77,25 @@ clean_bal_het_df <- function(df) {
 #' @export
 define_npr_gammas <- function(rep_df) {
     ngrp <- nrow(rep_df)
-    gams <- lapply(1:ngrp, function(i) gamma_params_mom(rep_df$pt_p[i], rep_df$sdpart[i]))
+    gams <- NULL
+    gams <- lapply(1:ngrp, function(i) gamma_params_mom(rep_df$pt_p[i], rep_df$pt_p.se[i]))
     gams
 }
 
 #' @export
-samp_npr_gammas <- function(gams, rep_df) {
+samp_npr_gammas <- function(gams) {
     ngrp <- length(gams)
-    pt_p <- sapply(gams, function(x) rgamma(1, shape = x$alpha, rate = x$beta))
-    return(pt_p)
+    new_pt_p <- rep(0, ngrp)
+    for (i in 1:ngrp) {
+        shape <- gams[[i]]$alpha
+        rate <- gams[[i]]$beta
+        if (is.na(shape) & is.na(rate)) {
+            new_pt_p[i] <- 0
+        } else {
+            new_pt_p[i] <- rgamma(1, shape = shape, rate = rate)
+        }
+    }
+    return(new_pt_p)
 }
 
 #' @export

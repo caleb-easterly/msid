@@ -5,7 +5,7 @@
 \title{Back-transform parameters from the
 sampled form to the model and/or prior form}
 \usage{
-backtransform_parms(parms, rep_df)
+backtransform_parms(parms, rep_df, so)
 }
 \description{
 Back-transform parameters from the

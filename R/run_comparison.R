@@ -8,16 +8,16 @@ define_vaccination <- function(parms, m_vacc, w_vacc){
 #' function to calibrate
 #'
 #' @export
-calibrate <- function(so, rep_df, n_samp, n_resamp) {
+calibrate_model <- function(so, rep_df, prop_df, n_samp, n_resamp) {
     ### calibrate
-    likelihood <- likelihood_generator(so = so, rep_df)
-    prior <- prior_generator(rep_df)
-    sample.prior <- sample_prior_generator(rep_df)
+    likelihood <- likelihood_generator(so = so, rep_df, prop_df)
+    prior <- prior_generator(rep_df, so)
+    sample.prior <- sample_prior_generator(rep_df, so)
 
     environment(IMIS) <- environment() # this helps IMIS() run...for some reason
     calib <- IMIS(n_samp, n_resamp)
 
-    calib_parms <- backtransform_parms(calib$resample, rep_df)
+    calib_parms <- backtransform_parms(calib$resample, rep_df, so)
     return(list("parms" = calib_parms, "imis" = calib))
 }
 
@@ -35,20 +35,17 @@ calibrate <- function(so, rep_df, n_samp, n_resamp) {
 #' @importFrom IMIS IMIS
 #' @importFrom mvtnorm rmvnorm dmvnorm
 #' @export
-run_comparison <- function(so, contacts, n_samp, n_resamp, n_run_samp){
-
-    reds <- prevs <- vector(mode = "list", length = n_resamp)
-
+run_comparison <- function(so, rep_df, prop_df, calib_parms, n_run_samp){
     # todo: parallelize this part
     comps <- vector(mode = "list", length = n_run_samp)
+    imis_n_samps <- nrow(calib_parms)
 
     for (i in 1:n_run_samp){
-        j <- sample(1:n_resamp, 1) # choose a random parameter set
+        j <- sample(1:imis_n_samps, 1) # choose a random parameter set
 
         ## calculate prevalence (to compare to targets)
         # j selects the set of parameters
-        prev <- run_model_with_btparms(i = j, btparms = calib_parms, so = so,
-                                       contact = contacts)
+        prev <- run_model_with_btparms(j, calib_parms, so, rep_df, prop_df)
 
         # run is used in group_by() to get variation
         # used i because it's guaranteed to be unique
@@ -56,8 +53,7 @@ run_comparison <- function(so, contacts, n_samp, n_resamp, n_run_samp){
 
         ## number of infections ##
         # use j to define the parms
-        p <- define_calib_parms(i = j, btparms = calib_parms,
-                                so = so, contact = contacts )
+        p <-  define_calib_parms(j, calib_parms, so, rep_df, prop_df)
 
         vacc_level <- 0.5
         comp_endtime <- 20
@@ -98,7 +94,7 @@ run_comparison <- function(so, contacts, n_samp, n_resamp, n_run_samp){
     all_reds <- reds %>%
         bind_rows()
 
-    return(list('reds' = all_reds, 'prevs' = all_prevs, 'imis' = calib, 'parms' = calib_parms))
+    return(list('reds' = all_reds, 'prevs' = all_prevs, 'parms' = calib_parms))
 }
 
 

@@ -4,7 +4,7 @@
 \alias{run_model_with_btparms}
 \title{Run the model with the ith set of bback-transformed parameters}
 \usage{
-run_model_with_btparms(i, btparms, so, rep_df)
+run_model_with_btparms(i, btparms, so, rep_df, prop_df)
 }
 \description{
 Called from the likelihood function.

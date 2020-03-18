@@ -5,7 +5,7 @@
 \title{prior density of parms.
 takes parameters directly from sample.prior()}
 \usage{
-prior_generator(rep_df)
+prior_generator(rep_df, so)
 }
 \description{
 prior density of parms.

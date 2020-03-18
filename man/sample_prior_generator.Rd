@@ -4,7 +4,7 @@
 \alias{sample_prior_generator}
 \title{Sample from the prior distributions.}
 \usage{
-sample_prior_generator(rep_df)
+sample_prior_generator(rep_df, so)
 }
 \description{
 Called from IMIS.

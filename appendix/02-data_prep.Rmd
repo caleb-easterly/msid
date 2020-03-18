@@ -276,8 +276,9 @@ reshape_pt_table <- function(tab) {
   w_only <- select(tab, r_sex, r_sexid, r_sexact, pt_p = w_nonew, pt_p.se = se.w_nonew) %>%
     mutate(rp_sex = "w")
   tog <- rbind(m_only, w_only) %>%
-    select(r_sex, r_sexid, r_sexact, rp_sex, pt_p, pt_p.se) %>%
-    arrange(r_sex, r_sexid, r_sexact)
+    arrange(r_sex, r_sexid, r_sexact) %>%
+    mutate(r_demo = paste(r_sex, r_sexid, r_sexact, sep = "_")) %>%
+    select(r_sex, r_sexid, r_sexact, r_demo, rp_sex, pt_p, pt_p.se)
   return(tog)
 }
 
@@ -305,7 +306,7 @@ split_demo <- function(tab) {
 }
 all_sexid_props <- all_sexid_props %>%
   split_demo() %>%
-  select(r_sex, r_sexid, r_sexact, prop = mean, prop_se = SE)
+  select(r_sex, r_sexid, r_sexact, r_demo, prop = mean, prop_se = SE)
 
 all_sexid_props %>%
   format_table()
@@ -382,7 +383,7 @@ het_props$r_demo <- str_sub(rownames(het_props), start = 7L)
 rownames(het_props) <- NULL
 het_props <- het_props %>%
   split_demo() %>%
-  select(r_sex, r_sexid, r_sexact, prop = mean, prop_se = SE)
+  select(r_sex, r_sexid, r_sexact, r_demo, prop = mean, prop_se = SE)
 
 het_props %>%
   format_table()

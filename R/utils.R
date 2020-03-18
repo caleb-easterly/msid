@@ -30,7 +30,11 @@ ilogit <- function(x) {
 
 #' @export
 gamma_params_mom <- function(mean, sigma, scale = F){
-    if (scale){
+    if (sigma == 0 | mean == 0) {
+        alpha <- NA
+        beta <- NA
+    }
+    else if (scale){
         alpha <- (mean^2)/(sigma^2)
         beta <- (sigma^2)/mean
     } else {

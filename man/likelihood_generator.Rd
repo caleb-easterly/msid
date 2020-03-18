@@ -4,7 +4,7 @@
 \alias{likelihood_generator}
 \title{Used to define a likelihood function either for het or so mixing structures}
 \usage{
-likelihood_generator(so, rep_df)
+likelihood_generator(so, rep_df, prop_df)
 }
 \arguments{
 \item{so}{sex orientation: either "het" or "msid"}

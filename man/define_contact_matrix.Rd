@@ -7,7 +7,7 @@
 define_contact_matrix(contact_df, demo_indices)
 }
 \arguments{
-\item{contact_df}{data.frame with partnering rates in the \code{corrected_r} column}
+\item{contact_df}{data.frame with partnering rates in the \code{} column}
 
 \item{demo_indices}{data.frame with the mapping of demographic groups to unique identifiers}
 }

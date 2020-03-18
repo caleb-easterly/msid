@@ -7,8 +7,8 @@
 define_parameters(inf_clear_rate_M = 1/2, inf_clear_rate_W = 1/2,
   nat_imm_wane_rate_M = 1/20, nat_imm_wane_rate_W = 1/20,
   efficacy = 0.9, entry_exit_rate = 1/14, sexids = c("het", "msid",
-  "msid_avg"), contact_df = NULL, betaMM = 0.8, betaMW = 0.8,
-  betaWW = 0.2)
+  "msid_avg"), contact_df = NULL, prop_df = NULL, betaMM = 0.8,
+  betaMW = 0.8, betaWW = 0.2)
 }
 \description{
 todo: test

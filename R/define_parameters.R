@@ -10,6 +10,7 @@ define_parameters <- function(inf_clear_rate_M = 1/2,
                               entry_exit_rate = 1/14,
                               sexids = c('het', 'msid', 'msid_avg'),
                               contact_df = NULL,
+                              prop_df = NULL,
                               betaMM = 0.8,
                               betaMW = 0.8,
                               betaWW = 0.2){
@@ -32,8 +33,12 @@ define_parameters <- function(inf_clear_rate_M = 1/2,
     inc_compartments <- model_indices[model_indices$epi == "I", ]
 
     # define population dist
+    ## join contact_df with prop_df
+    pop_df <- left_join(contact_df, prop_df,
+                        by = c("r_sex", "r_sexid", "r_sexact", "r_demo"))
+
     # join with demo_indices
-    pdist_df <- left_join(demo_indices, contact_df,
+    pdist_df <- left_join(demo_indices, pop_df,
                            by = c("sex" = "r_sex",
                                 "sexid" = "r_sexid",
                                 "sexact" = "r_sexact")) %>%
@@ -71,7 +76,9 @@ define_parameters <- function(inf_clear_rate_M = 1/2,
     # calculate sufficient contacts
 
     # contact matrix
-    contact_matrix <- define_contact_matrix(contact_df, demo_indices)
+    ## balance contacts
+    bal <- het_rep_to_bal(contact_df, prop_df)
+    contact_matrix <- define_contact_matrix(bal, demo_indices)
 
     # transmission probability matrix
     trans_prob_matrix <- define_transmission_prob_matrix(betaMM, betaMW, betaWW, demo_indices)
