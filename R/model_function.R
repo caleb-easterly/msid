@@ -28,7 +28,7 @@ model_function <- function(times, x, parms, vaccination){
     prev <- calc_prevalence(x, parms)
 
     # calculate force_of_inf - product of suff_contact_matrix and prev
-    force_of_inf <- (suff_contact_matrix %*% prev)[, 1] # take 1-col matrix to vector
+    force_of_inf <- calculate_force_of_inf(suff_contact_matrix, prev)
 
     #### calculate derivatives ####
     # make derivative vector
