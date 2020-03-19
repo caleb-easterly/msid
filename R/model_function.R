@@ -10,8 +10,7 @@ model_function <- function(times, x, parms, vaccination){
     nat_imm_wane_rate <- epi$nat_imm_wane_rate
 
     # vaccine parameters
-    vacc <- parms$vacc
-    efficacy <- vacc$efficacy
+    efficacy <- parms$vacc$efficacy
 
     # behavioral parameters
     suff_contact_matrix <- parms$behav$suff_contact_matrix
