@@ -1,5 +1,9 @@
 #' Calculate the force of infection
 #'
+#' @description The force of infection is
+#' calculated as the matrix product of the
+#' sufficient contact matrix and the prevalence
+#'
 #' @param suff_contact_matrix this is the contact matrix multiplied
 #' by the probability of transmission
 #'

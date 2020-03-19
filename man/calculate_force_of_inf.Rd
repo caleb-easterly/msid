@@ -13,5 +13,7 @@ by the probability of transmission}
 \item{prev}{the prevalence vector}
 }
 \description{
-Calculate the force of infection
+The force of infection is
+calculated as the matrix product of the
+sufficient contact matrix and the prevalence
 }
