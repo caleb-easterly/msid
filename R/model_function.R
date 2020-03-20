@@ -1,8 +1,14 @@
 #' Contains the differential equations that describe the
 #' HPV transmission model
 #'
+#' @param y the current estimate of the variables in the ODE system
+#' @param t the current time point in the integration
+#' @param parms a list of parameters from \code{define_parameters()}
+#' @param vaccination the vaccination strategy, given as a vector of coverage
+#' values for each population group
+#'
 #' @export
-model_function <- function(times, x, parms, vaccination){
+model_function <- function(t, y, parms, vaccination){
     # epi parameters
     epi <- parms$epi
     # these are both vectors, with length equal to n_demo_grps
@@ -25,7 +31,7 @@ model_function <- function(times, x, parms, vaccination){
     n_equations <- st$n_equations
 
     # calculate prevalence
-    prev <- calc_prevalence(x, parms)
+    prev <- calc_prevalence(y, parms)
 
     # calculate force_of_inf - product of suff_contact_matrix and prev
     force_of_inf <- calculate_force_of_inf(suff_contact_matrix, prev)
@@ -33,6 +39,9 @@ model_function <- function(times, x, parms, vaccination){
     #### calculate derivatives ####
     # make derivative vector
     derivs <- rep(0, n_equations)
+
+    # rename x for clarity
+    popvec <- y
 
     # loop through equations
     for (i in 1:n_demo_grps){
@@ -45,28 +54,29 @@ model_function <- function(times, x, parms, vaccination){
         this_w <- this_group_indices[5]
         this_i <- this_group_indices[6]
 
+        # reduced force of infection for those vaccinated
         foi_with_vacc <- force_of_inf[i]*(1 - efficacy)
 
         # calculate derivatives
         derivs[this_x] <- entry_exit_rate*population_dist[i]*(1 - vaccination[i]) +
-            nat_imm_wane_rate[i]*x[this_z] -
-            (force_of_inf[i] + entry_exit_rate)*x[this_x]
+            nat_imm_wane_rate[i]*popvec[this_z] -
+            (force_of_inf[i] + entry_exit_rate)*popvec[this_x]
 
-        derivs[this_y] <- force_of_inf[i]*x[this_x] -
-            (inf_clear_rate[i] + entry_exit_rate)*x[this_y]
+        derivs[this_y] <- force_of_inf[i]*popvec[this_x] -
+            (inf_clear_rate[i] + entry_exit_rate)*popvec[this_y]
 
-        derivs[this_z] <- inf_clear_rate[i]*x[this_y] -
-            (nat_imm_wane_rate[i] + entry_exit_rate)*x[this_z]
+        derivs[this_z] <- inf_clear_rate[i]*popvec[this_y] -
+            (nat_imm_wane_rate[i] + entry_exit_rate)*popvec[this_z]
 
         derivs[this_v] <- entry_exit_rate*population_dist[i]*vaccination[i] +
-            inf_clear_rate[i]*x[this_w] -
-            (foi_with_vacc + entry_exit_rate)*x[this_v]
+            inf_clear_rate[i]*popvec[this_w] -
+            (foi_with_vacc + entry_exit_rate)*popvec[this_v]
 
-        derivs[this_w] <- foi_with_vacc*x[this_v] -
-            (inf_clear_rate[i] + entry_exit_rate)*x[this_w]
+        derivs[this_w] <- foi_with_vacc*popvec[this_v] -
+            (inf_clear_rate[i] + entry_exit_rate)*popvec[this_w]
 
-        derivs[this_i] <- force_of_inf[i]*x[this_x] +
-            foi_with_vacc*x[this_v]
+        derivs[this_i] <- force_of_inf[i]*popvec[this_x] +
+            foi_with_vacc*popvec[this_v]
     }
     return(list(derivs))
 }

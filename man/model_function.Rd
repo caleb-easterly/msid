@@ -5,7 +5,17 @@
 \title{Contains the differential equations that describe the
 HPV transmission model}
 \usage{
-model_function(times, x, parms, vaccination)
+model_function(t, y, parms, vaccination)
+}
+\arguments{
+\item{t}{the current time point in the integration}
+
+\item{y}{the current estimate of the variables in the ODE system}
+
+\item{parms}{a list of parameters from \code{define_parameters()}}
+
+\item{vaccination}{the vaccination strategy, given as a vector of coverage
+values for each population group}
 }
 \description{
 Contains the differential equations that describe the
