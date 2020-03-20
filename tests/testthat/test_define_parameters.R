@@ -1,10 +1,14 @@
 context("define parameters")
 library(msid)
 
-data(contact_het_base)
+data("het_rep")
+data("het_props")
+data("all_sexid_rep")
+data("all_sexid_props")
 
 parameters <- define_parameters(sexids = "het",
-                                contact_df = contact_het_base)
+                                contact_df = het_rep,
+                                prop_df = het_props)
 
 
 test_that("parameters are organized into categories", {
@@ -13,9 +17,9 @@ test_that("parameters are organized into categories", {
 })
 
 test_that("msid parameters", {
-    data(contact_msid_base)
     parameters <- define_parameters(sexids = "msid",
-                                    contact_df = contact_msid_base)
+                                    contact_df = all_sexid_rep,
+                                    prop_df = all_sexid_props)
     p_cats <- names(parameters)
     expect_setequal(p_cats, c("epi", "vacc", "structural", "behav"))
 })
