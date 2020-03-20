@@ -1,8 +1,11 @@
 context("transmission probability matrix")
 library(msid)
 
-data("contact_msid_base")
-msid_parms <- define_parameters(contact_df = contact_msid_base, sexids = 'msid')
+data("all_sexid_rep")
+data("all_sexid_props")
+msid_parms <- define_parameters(contact_df = all_sexid_rep,
+                                prop_df = all_sexid_props,
+                                sexids = 'msid')
 demo_indices <- msid_parms$structural$demo_indices
 
 test_that("transmission prob. mat", {
