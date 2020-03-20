@@ -6,6 +6,15 @@
 \usage{
 define_index_df(constants)
 }
+\arguments{
+\item{constants}{output from \code{\link{load_constants}},
+specific to the sexid structure specified to that function}
+}
+\value{
+A list of "model indices" and "demo indices".
+The model indices specify the indices of demographic and epidemiological groups,
+while the demo indices only specify the demographic indices (not including epi groups)
+}
 \description{
 define index df
 }

@@ -2,10 +2,12 @@
 % Please edit documentation in R/indexing.R
 \name{get_demo_index}
 \alias{get_demo_index}
-\title{todo: write test}
+\title{Get the index for a demographic group}
 \usage{
 get_demo_index(qsex, qsexid, qsexact, demo_indices)
 }
 \description{
-todo: write test
+Get the index for a given demographic group.
+This is the demo index (see \code{\link{define_index_df}}),
+not the model index.
 }

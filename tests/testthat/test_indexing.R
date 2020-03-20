@@ -11,6 +11,9 @@ test_that("constants", {
 
     avg_const <- load_constants("msid_avg")
     expect_equal(avg_const$sexid, "all")
+
+    expect_equal(avg_const$epi, c('X', 'Y', 'Z', 'V', 'W', 'I'))
+    expect_equal(avg_const$sexact, c("high", "low"))
 })
 
 # index dataframes
@@ -29,4 +32,13 @@ test_that("define index df", {
     avg_indices <- define_index_df(load_constants("msid_avg"))
     expect_equal(names(avg_indices), c("model_indices", "demo_indices"))
     expect_equal(avg_indices$demo_indices$demo_uid, 1:4)
+})
+
+# get demo index
+test_that("get demo index", {
+    msid_indices <- define_index_df(load_constants("msid"))$demo_indices
+    expect_equal(get_demo_index("m", "het", "high", msid_indices), 1)
+
+    het_indices <- define_index_df(load_constants("het"))$demo_indices
+    expect_equal(get_demo_index("w", "het", "high", het_indices), 3)
 })
