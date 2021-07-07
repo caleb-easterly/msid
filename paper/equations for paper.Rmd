@@ -1,0 +1,51 @@
+---
+title: "latex equations for paper"
+output:
+  word_document: default
+  html_document: default
+---
+
+Model Equations
+
+$$
+\begin{aligned}
+\frac{dX_{ijk}}{dt} &= \mu \omega_{ijk} (1 - \phi_{ijk}) + \tau_{i} Z_{ijk} - (\lambda_{ijk} + \mu) X_{ijk} \\
+\frac{dY_{ijk}}{dt} &= \lambda_{ijk} X_{ijk} - (\gamma_{i} + \mu) Y_{ijk} \\
+\frac{dZ_{ijk}}{dt} &= \gamma_{i} Y_{ijk} - (\tau_{i} + \mu) Z_{ijk} \\
+\frac{dV_{ijk}}{dt} &= \mu \omega_{ijk} \phi_{ijk} + \gamma_{i} W_{ijk} - (\lambda_{ijk}(1 - \delta) + \mu) W_{ijk} \\
+\frac{dW_{ijk}}{dt} &= \lambda_{ijk} (1 - \delta) V_{ijk} - (\gamma_{i} + \mu) W_{ijk} \\
+\frac{dI_{ijk}}{dt} &= \lambda_{ijk} X_{ijk} + \lambda_{ijk} (1 - \delta) V_{ijk} 
+\end{aligned}
+$$
+
+## Force of infection
+
+$$
+\lambda_{ijk} = \sum_a \sum_b \sum_c s^*_{ijkabc} \beta_{ia} P_{abc}
+$$
+
+## Distributing and Balancing
+
+First, we distribute the partnerships across sexual activity groups and sexual identity groups.
+
+$$
+s_{ijkabc} = s_{ijka} \times \frac{\omega_{abc} s_{abci}}{\sum_{m} \sum_{n} \sum_{p} \omega_{mnp} s_{mnpi}}
+$$
+
+Next, we balance. The imbalance is defined by:
+
+$$
+B_{ijkabc} = \frac{\omega_{ijkabc} s_{ijkabc}}{\omega_{abcijk}s_{abcijk}}
+$$
+
+Finally, the balanced partnership numbers are defined as:
+
+$$
+s^*_{ijkabc} = \frac{s_{ijkabc}}{\sqrt{B_{ijkabc}}}
+$$
+
+and
+
+$$
+s^*_{abcijk} = s_{abcijk} \times \sqrt{B_{ijkabc}}
+$$

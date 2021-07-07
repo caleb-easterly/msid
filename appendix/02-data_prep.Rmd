@@ -1,3 +1,8 @@
+---
+output:
+  html_document: default
+  word_document: default
+---
 # Goal of Analysis
 
 The goal is to estimate the annual number of new partnerships between each group of people in the model.
@@ -341,7 +346,7 @@ all_sexid_tog_props$r_demo <- str_sub(rownames(all_sexid_tog_props), start = 11L
 rownames(all_sexid_tog_props) <- NULL
 all_sexid_tog_props <- all_sexid_tog_props %>%
   split_demo() %>%
-  select(r_sex, r_sexid, r_sexact, prop = mean, prop_se = SE)
+  select(r_sex, r_sexid, r_sexact, r_demo, prop = mean, prop_se = SE)
 
 all_sexid_tog_props %>%
   format_table()

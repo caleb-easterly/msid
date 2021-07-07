@@ -9,3 +9,4 @@ git add .
 git commit -am 'Update docs'
 git remote add origin https://github.com/caleb-easterly/msid.git
 git push origin gh-pages --force
+

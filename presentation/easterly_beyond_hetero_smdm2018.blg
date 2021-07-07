@@ -1,0 +1,5 @@
+[0] Config.pm:304> INFO - This is Biber 2.14
+[1] Config.pm:307> INFO - Logfile is 'easterly_beyond_hetero_smdm2018.blg'
+[111] biber-MSWIN64:322> INFO - === 
+[135] Biber.pm:415> INFO - Reading 'easterly_beyond_hetero_smdm2018.bcf'
+[268] Biber.pm:940> INFO - Using all citekeys in bib section 0

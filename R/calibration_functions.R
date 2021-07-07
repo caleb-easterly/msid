@@ -49,19 +49,30 @@ sample_prior_generator <- function(rep_df, so){
                                 "w_het_low_w")
             ids2calib <- ids[!(ids %in% ids_not_2calib)]
         }
+        if (so == "msid_avg") {
+            ids2calib <- ids
+        }
 
         nprs_clean <- nprs[, ids2calib]
 
         # needs to be a matrix for IMIS
-        df <- data.frame("logit_betaMM" = logit_betaMM,
-                         "logit_betaMF" = logit_betaMF,
-                         "logit_betaFF" = logit_betaFF,
-                         "log_inf_dur_M" = log_inf_dur_M,
-                         "log_inf_dur_F" = log_inf_dur_F,
-                         "log_nat_imm_dur_M" = log_nat_imm_dur_M,
-                         "log_nat_imm_dur_F" = log_nat_imm_dur_F,
-                         nprs_clean)
-
+        if (so == "het") { # betaMF is the only relevant beta
+            df <- data.frame("logit_betaMF" = logit_betaMF,
+                             "log_inf_dur_M" = log_inf_dur_M,
+                             "log_inf_dur_F" = log_inf_dur_F,
+                             "log_nat_imm_dur_M" = log_nat_imm_dur_M,
+                             "log_nat_imm_dur_F" = log_nat_imm_dur_F,
+                             nprs_clean)
+        } else {
+            df <- data.frame("logit_betaMM" = logit_betaMM,
+                             "logit_betaMF" = logit_betaMF,
+                             "logit_betaFF" = logit_betaFF,
+                             "log_inf_dur_M" = log_inf_dur_M,
+                             "log_inf_dur_F" = log_inf_dur_F,
+                             "log_nat_imm_dur_M" = log_nat_imm_dur_M,
+                             "log_nat_imm_dur_F" = log_nat_imm_dur_F,
+                             nprs_clean)
+        }
         data.matrix(df)
     }
     return(sample.prior)
@@ -82,13 +93,24 @@ select_nprs_to_calibrate <- function(so) {
                                  "w_gay_low_w", # removed w_gay_low_m
                  "w_het_high_m", "w_het_high_w",
                  "w_het_low_m",  "w_het_low_w")
-        ids
-    } else {
+    }
+    if (so == "het") {
         ids <- c("m_het_high_w",
                  "w_het_high_m",
                  "m_het_low_w",
                  "w_het_low_m")
     }
+    if (so == "msid_avg") {
+        ids <- c("m_all_high_m",
+                 "m_all_high_w",
+                 "m_all_low_m",
+                 "m_all_low_w",
+                 "w_all_high_m",
+                 "w_all_high_w",
+                 "w_all_low_m",
+                 "w_all_low_w")
+    }
+    return(ids)
 }
 
 #' take parameters (sampled from prior) and
@@ -134,6 +156,9 @@ replace_filtered_nprs <- function(filt_nprs, so) {
             select(ids)
         return(full_nprs)
     }
+    if (so == "msid_avg") {
+        return(filt_nprs)
+    }
 }
 
 
@@ -146,9 +171,11 @@ prior_generator <- function(rep_df, so){
         bt_parms <- backtransform_parms(parms, rep_df, so)
 
         # beta
-        betaMM_like <- dbeta(bt_parms[, "betaMM"], 3, 1)
         betaMF_like <- dbeta(bt_parms[, "betaMF"], 3, 1)
-        betaFF_like <- dbeta(bt_parms[, "betaFF"], 3, 1)
+        if (so != "het") {
+            betaMM_like <- dbeta(bt_parms[, "betaMM"], 3, 1)
+            betaFF_like <- dbeta(bt_parms[, "betaFF"], 3, 1)
+        }
 
         # InfClearRate
         estInfDur <- estimate_inf_duration()
@@ -181,14 +208,23 @@ prior_generator <- function(rep_df, so){
         nprs <- bt_parms[, npr_names]
         npr_like <- d_npr_gammas(nprs, contact_gams)
 
-        dens_mat <- cbind(betaMM_like,
-                          betaMF_like,
-                          betaFF_like,
-                          inf_dur_M_like,
-                          inf_dur_F_like,
-                          nat_imm_dur_M_like,
-                          nat_imm_dur_F_like,
-                          npr_like)
+        if (so == "het") {
+            dens_mat <- cbind(betaMF_like,
+                              inf_dur_M_like,
+                              inf_dur_F_like,
+                              nat_imm_dur_M_like,
+                              nat_imm_dur_F_like,
+                              npr_like)
+        } else {
+            dens_mat <- cbind(betaMM_like,
+                              betaMF_like,
+                              betaFF_like,
+                              inf_dur_M_like,
+                              inf_dur_F_like,
+                              nat_imm_dur_M_like,
+                              nat_imm_dur_F_like,
+                              npr_like)
+        }
         # remove NAs because some of the NPRs may have NA likelihood
         apply(dens_mat, 1, FUN = function(x) prod(x, na.rm = TRUE))
     }
@@ -274,16 +310,29 @@ define_calib_parms <- function(i, btparms, so, rep_df, prop_df){
     nprs <- btparms[i, npr_names]
     rep_df$pt_p <- nprs
     contact <- het_rep_to_bal(rep_df, prop_df)
-    parms <- define_parameters(betaMM = btparms[i, "betaMM"],
-                               betaMW = btparms[i, "betaMF"],
-                               betaWW = btparms[i, "betaFF"],
-                               inf_clear_rate_M = btparms[i, "inf_clear_rate_M"],
-                               inf_clear_rate_W = btparms[i, "inf_clear_rate_F"],
-                               nat_imm_wane_rate_M = btparms[i, "nat_imm_wane_rate_M"],
-                               nat_imm_wane_rate_W = btparms[i, "nat_imm_wane_rate_F"],
-                               sexids = so,
-                               contact_df = rep_df,
-                               prop_df = prop_df)
+    if (so == "het") {
+        parms <- define_parameters(betaMM = 0,
+                                   betaMW = btparms[i, "betaMF"],
+                                   betaWW = 0,
+                                   inf_clear_rate_M = btparms[i, "inf_clear_rate_M"],
+                                   inf_clear_rate_W = btparms[i, "inf_clear_rate_F"],
+                                   nat_imm_wane_rate_M = btparms[i, "nat_imm_wane_rate_M"],
+                                   nat_imm_wane_rate_W = btparms[i, "nat_imm_wane_rate_F"],
+                                   sexids = so,
+                                   contact_df = rep_df,
+                                   prop_df = prop_df)
+    } else {
+        parms <- define_parameters(betaMM = btparms[i, "betaMM"],
+                                   betaMW = btparms[i, "betaMF"],
+                                   betaWW = btparms[i, "betaFF"],
+                                   inf_clear_rate_M = btparms[i, "inf_clear_rate_M"],
+                                   inf_clear_rate_W = btparms[i, "inf_clear_rate_F"],
+                                   nat_imm_wane_rate_M = btparms[i, "nat_imm_wane_rate_M"],
+                                   nat_imm_wane_rate_W = btparms[i, "nat_imm_wane_rate_F"],
+                                   sexids = so,
+                                   contact_df = rep_df,
+                                   prop_df = prop_df)
+    }
     return(parms)
 }
 
@@ -293,9 +342,11 @@ define_calib_parms <- function(i, btparms, so, rep_df, prop_df){
 #'
 #' @export
 backtransform_parms <- function(parms, rep_df, so){
-    betaMM <- ilogit(parms[, "logit_betaMM"])
     betaMF <- ilogit(parms[, "logit_betaMF"])
-    betaFF <- ilogit(parms[, "logit_betaFF"])
+    if (so != "het") {
+        betaMM <- ilogit(parms[, "logit_betaMM"])
+        betaFF <- ilogit(parms[, "logit_betaFF"])
+    }
     # transform the durations to rates by
     # exponentiating and taking the inverse
     inf_clear_rate_M <- 1/exp(parms[, "log_inf_dur_M"])
@@ -308,18 +359,31 @@ backtransform_parms <- function(parms, rep_df, so){
     nprs <- exp(parms[, npr_names])
     full_nprs <- replace_filtered_nprs(nprs, so)
 
-    data.matrix(
-        data.frame(
-            "betaMM" = betaMM,
-            "betaMF" = betaMF,
-            "betaFF" = betaFF,
-            "inf_clear_rate_M" = inf_clear_rate_M,
-            "inf_clear_rate_F" = inf_clear_rate_F,
-            "nat_imm_wane_rate_M" = nat_imm_wane_rate_M,
-            "nat_imm_wane_rate_F" =nat_imm_wane_rate_F,
-            full_nprs
+    if (so == "het") {
+        data.matrix(
+            data.frame(
+                "betaMF" = betaMF,
+                "inf_clear_rate_M" = inf_clear_rate_M,
+                "inf_clear_rate_F" = inf_clear_rate_F,
+                "nat_imm_wane_rate_M" = nat_imm_wane_rate_M,
+                "nat_imm_wane_rate_F" =nat_imm_wane_rate_F,
+                full_nprs
+            )
         )
-    )
+    } else {
+        data.matrix(
+            data.frame(
+                "betaMM" = betaMM,
+                "betaMF" = betaMF,
+                "betaFF" = betaFF,
+                "inf_clear_rate_M" = inf_clear_rate_M,
+                "inf_clear_rate_F" = inf_clear_rate_F,
+                "nat_imm_wane_rate_M" = nat_imm_wane_rate_M,
+                "nat_imm_wane_rate_F" =nat_imm_wane_rate_F,
+                full_nprs
+            )
+        )
+    }
 }
 
 

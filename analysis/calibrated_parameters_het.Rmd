@@ -1,0 +1,151 @@
+```{r}
+library(msid)
+library(dplyr)
+library(ggplot2)
+
+load("results/het_calib_results_3_23_2020_v2.rda")
+
+# parameters
+het_p <- data.frame(het_only_calib_results$parms)
+
+## betas
+# almost exactly 1
+# plot(density(het_p$betaMF),
+#       lty = 2,
+#       lwd = 2)
+# curve(dbeta(x, 3, 1), ylim = c(0, 10),
+#       main = "betaMF",
+#       ylab = "Density",
+#       xlab = "Prob.",
+#       lwd = 2,
+#       add = TRUE)
+
+## inf clear rate
+estInfDur <- estimate_inf_duration()
+
+### male
+par(mfrow = c(1, 2))
+curve(dgamma(x,
+             shape = estInfDur$gammaM$alpha,
+             rate = estInfDur$gammaM$beta),
+      from = 0, to = 5,
+      ylim = c(0, 1.2),
+      lwd = 2,
+      ylab = "Density",
+      xlab = "Inf. Duration")
+lines(density(1/het_p$inf_clear_rate_M),
+      lty = 2,
+      lwd = 2)
+
+### female
+curve(dgamma(x,
+             shape = estInfDur$gammaF$alpha,
+             rate = estInfDur$gammaF$beta),
+      from = 0, to = 5,
+      ylim = c(0, 1.2),
+      lwd = 2,
+      ylab = "Density",
+      xlab = "Inf. Duration")
+lines(density(1/het_p$inf_clear_rate_F),
+      lty = 2,
+      lwd = 2)
+
+## waning of natural immunity
+par(mfrow = c(1, 2))
+nat_imm_dur_params <- gamma_params_mom(20, 15, scale = FALSE)
+
+### male
+curve(dgamma(x,
+             shape = nat_imm_dur_params$alpha,
+             rate = nat_imm_dur_params$beta),
+      from = 0, to = 75,
+      lwd = 2,
+      ylim = c(0, 0.2),
+      ylab = "Density",
+      xlab = "Years",
+      main = "Male")
+lines(density(1/het_p$nat_imm_wane_rate_M),
+      lwd = 2,
+      lty = 2)
+
+### female
+curve(dgamma(x,
+             shape = nat_imm_dur_params$alpha,
+             rate = nat_imm_dur_params$beta),
+      from = 0, to = 75,
+      lwd = 2,
+      ylim = c(0, 0.2),
+      ylab = "Density",
+      xlab = "Years",
+      main = "Female")
+lines(density(1/het_p$nat_imm_wane_rate_F),
+      lwd = 2,
+      lty = 2)
+
+
+```
+
+
+
+```{r}
+## contact df
+mean_nprs <- het_p %>%
+    select(starts_with("m_"), starts_with("w_"))
+means <- colMeans(mean_nprs)
+sds <- apply(mean_nprs, 2, sd)
+data("het_rep")
+
+calib_rep <- het_rep
+calib_rep$pt_p <- means
+calib_rep$pt_p.se <- sds
+calib_rep$method <- "calibrated"
+
+het_rep$method <- "estimated"
+calib_v_est <- rbind(het_rep, calib_rep)
+
+calib_v_est$method <- factor(calib_v_est$method,
+                          levels = c("estimated",
+                                     "calibrated"))
+library(ggplot2)
+ggplot(calib_v_est) +
+    geom_bar(aes(x = rp_sex, y = pt_p,
+                 fill = method),
+             stat = "identity",
+             position = "dodge") +
+    facet_grid(.~r_demo) +
+    theme_bw()
+
+### now, calculate contact matrix
+calib_bal <- het_rep_to_bal(calib_rep, het_props)
+ggplot(calib_bal) +
+    geom_tile(aes(x = r_demo, y = rp_demo, fill=corrected_r), color="black", size = 0.2) +
+    scale_fill_gradientn(name="Annual Number\nof New Partnerships",
+                         colors = c("blue", "red", "yellow"),
+                         na.value = "grey50") +
+    labs(x = "Group of Partner 1",
+         y = "Group of Partner 2") +
+    theme_minimal(base_size = 14) + coord_fixed() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+### compare to previous contact matrix
+est_bal <- het_rep_to_bal(het_rep, het_props)
+est_bal$diff <- est_bal$corrected_r - calib_bal$corrected_r
+ggplot(est_bal) +
+    geom_tile(aes(x = r_demo, y = rp_demo, fill=diff), color="black", size = 0.2) +
+    labs(x = "Group of Partner 1",
+         y = "Group of Partner 2") +
+    theme_minimal(base_size = 14) + coord_fixed() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## Parameter Table
+
+```{r}
+het_p %>%
+  mutate(inf_duration_M = 1/inf_clear_rate_M, inf_duration_F = 1/inf_clear_rate_F,
+         nat_imm_duration_M = 1/nat_imm_wane_rate_M, nat_imm_duration_F = 1/nat_imm_wane_rate_F) %>%
+  select(betaMF, inf_duration_M, inf_duration_F, nat_imm_duration_M, nat_imm_duration_F,
+         starts_with("m_"), starts_with("w_")) %>%
+  summary()
+```

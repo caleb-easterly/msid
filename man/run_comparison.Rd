@@ -5,12 +5,14 @@
 \title{Run the comparison for SMDM 2018
 50 female vaccination versus 50 male and female vaccination}
 \usage{
-run_comparison(so, rep_df, prop_df, calib_parms, n_run_samp)
+run_comparison(so, rep_df, prop_df, calib_parms, n_run_samp, vacc_level)
 }
 \arguments{
 \item{so}{either 'het' or 'msid'}
 
 \item{n_run_samp}{samples from \code{<imis_results>$resample}}
+
+\item{vacc_level}{the desired coverage level. From 0 to 1.}
 
 \item{contacts}{path to the contact df}
 
