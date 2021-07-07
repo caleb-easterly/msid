@@ -1,6 +1,6 @@
 #!/bin/bash
 
-R -e 'library(bookdown); bookdown::render_book("appendix/index.Rmd")'
+R -e "library(bookdown); bookdown::render_book('appendix/index.Rmd')"
 cd _book
 git init
 git commit --allow-empty -m 'Update docs'
