@@ -266,6 +266,50 @@ likelihood_generator <- function(so, rep_df, prop_df){
     return(likelihood)
 }
 
+#' Used to define a likelihood function for all models, so they share epidemiological parameters
+#'
+#' @param so sex orientation: either "het" or "msid"
+#' @param rep_df reported partnerships dataframe
+#' @import parallel
+#' @export
+likelihood_generator_allmods <- function(het_rep_df, het_prop_df,
+                                         msid_rep_df, msid_prop_df,
+                                         avg_rep_df, avg_prop_df){
+    likelihood <- function(parms) {
+        dfs <- list("het" = list('rep' = het_rep_df, 'prop' = het_prop_df),
+                    "msid" = list("rep" = msid_rep_df, "prop" = msid_prop_df),
+                    "avg" = list("rep" = avg_rep_df, "prop" = avg_prop_df))
+        sexids <- c("het", "msid", "avg")
+        # cl <- makeCluster(detectCores())
+        # clusterExport(cl, c("btparms", "so", "rep_df", "prop_df"), envir = environment())
+        # like <- parSapply(cl, 1:nsets, function(i) {
+            for (j in 1:3) {
+                sexid_loc <- sexids[j]
+                dfs_loc <- dfs[[sexid_loc]]
+                btparms <- backtransform_parms(parms, dfs_loc[["rep"]], sexid_loc)
+                nsets <- nrow(btparms)
+                fTrue <- female_prevalence_target()
+                mTrue <- male_prevalence_target()
+                for (i in 1:nsets) {
+                    # run model for het, msid, all
+                    f_mod_prev <- run_model_with_btparms(i, btparms, sexid_loc,
+                                                         dfs_loc[["rep"]], dfs_loc[["prop"]])
+
+                    # group prevalence to gender
+                    prev_grpd <- group_prevalence_to_gender(f_mod_prev)
+                    m_mod_prev <- with(prev_grpd, mean_prev[sex == 'm'])
+                    w_mod_prev <- with(prev_grpd, mean_prev[sex == 'w'])
+                    het_like <- dnorm(x = mTrue[1], mean = m_mod_prev, sd = mTrue[2]) *
+                        dnorm(x = fTrue[1], mean = w_mod_prev, sd = fTrue[2])
+                }
+            }
+        # })
+        # stopCluster(cl)
+        # return(like)
+    }
+    return(likelihood)
+}
+
 #' @export
 run_calib_results <- function(btparms, so, rep_df, prop_df){
     nsets <- nrow(btparms)

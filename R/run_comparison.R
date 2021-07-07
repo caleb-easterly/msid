@@ -21,6 +21,27 @@ calibrate_model <- function(so, rep_df, prop_df, n_samp, n_resamp) {
     return(list("parms" = calib_parms, "imis" = calib))
 }
 
+#' function to calibrate
+#'
+#' @export
+calibrate_model_allmods <- function(so,
+                                    het_rep_df, het_prop_df,
+                                    msid_rep_df, msid_prop_df,
+                                    avg_rep_df, avg_prop_df,
+                                    n_samp, n_resamp) {
+    ### calibrate
+    likelihood <- likelihood_generator_allmods(het_rep_df, het_prop_df,
+                                               msid_rep_df, msid_prop_df,
+                                               avg_rep_df, avg_prop_df)
+    prior <- prior_generator(rep_df, so)
+    sample.prior <- sample_prior_generator(rep_df, so)
+
+    environment(IMIS) <- environment() # this helps IMIS() run...for some reason
+    calib <- IMIS(n_samp, n_resamp)
+
+    calib_parms <- backtransform_parms(calib$resample, rep_df, so)
+    return(list("parms" = calib_parms, "imis" = calib))
+}
 
 #' Run the comparison for SMDM 2018
 #' 50 female vaccination versus 50 male and female vaccination
